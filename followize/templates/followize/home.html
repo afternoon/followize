@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load i18n followize %}
+
+{% block title %}{% trans "Home" %}{% endblock %}
+
+{% block body %}
+  {% if updated %}
+    <p class="message">{% trans "Update posted!" %}</p>
+  {% endif %}
+
+  <table class="following" cellpadding="0" cellspacing="0">
+    {% for f in following %}
+      <tr class="update{% if f.status.in_reply_to_me %} reply_to_me{% endif %}{% if forloop.last %} last{% endif %}">
+        <td class="profile_image">
+          <a href="http://twitter.com/{{ f.screen_name }}" title="{{ f.name }} &mdash; {{ f.description }}"><img src="{{ f.profile_image_url }}" width="14" height="14" alt="{% blocktrans with f.name as f_name %}{{ f_name }}'s avatar{% endblocktrans %}"></a>
+        </td>
+
+        <td class="name">
+          <a href="http://twitter.com/{{ f.screen_name }}" title="{{ f.name }} &mdash; {{ f.description }}">{{ f.screen_name }}</a>
+        </td>
+
+        <td class="status">
+          <span class="text">
+            {{ f.status.text|twitter_links|safe }}{% if f.status.truncated %}<a href="http://twitter.com/{{ f.screen_name }}/status/{{ f.status.id }}">&hellip;</a>{% endif %}
+          </span>
+
+          <span class="created_at">
+            {{ f.status.created_at|twitter_timediff }}
+          </span>
+
+          <span class="reply">
+            {% if f.status.in_reply_to_status_id %}
+              {% trans "in reply to" %}
+              <a href="http://twitter.com/{{ f.status.in_reply_to_user.screen_name }}/status/{{ f.status.in_reply_to_status_id }}" title="{{ f.screen_name }}">{{ f.status.in_reply_to_user.screen_name }}</a>
+            {% endif %}
+          </span>
+        </td>
+
+        <td class="send_reply">
+          <a href="/post/?status=%40{{ f.screen_name }}+&amp;in_reply_to={{ f.status.id }}" title="{% blocktrans with f.screen_name as f_screen_name %}Reply to {{ f_screen_name }}{% endblocktrans %}">&#x21ba;</a>
+        </td>
+
+        <td class="send_dm">
+          <a href="/post/?status=d+{{ f.screen_name }}+" title="{% blocktrans with f.screen_name as f_screen_name %}Direct message {{ f_screen_name }}{% endblocktrans %}">&#x2709;</a>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+
+  {% if pages %}
+    <ul class="pages">
+      {% for p in pages %}
+        <li>{% ifequal p page %}<span>{% trans "Page" %} {{ p }}</span>{% else %}<a href="/home/?page={{ p }}">{% trans "Page" %} {{ p }}</a>{% endifequal %}</li>
+      {% endfor %}
+    </ul>
+  {% endif%}
+{% endblock %}

@@ -1,0 +1,50 @@
+{% load i18n %}
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<html lang="en">
+  <head>
+    <title>{% block title %}{% endblock %} &mdash; {% trans "Followize" %}</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <link rel="stylesheet" type="text/css" href="/media/base.css">
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+
+    {# <script type="text/javascript" src="/media/jquery-1.2.6.min.js"></script> #}
+    {# <script type="text/javascript" src="/media/ajaxiness.js"></script> #}
+
+    <meta name="description" content="See the latest update from every person you follow.">
+  </head>
+
+  <body>
+    <div class="page">
+      <h1>
+        <a href="/home/" title="Home">&#x272d; {% trans "Followize" %}</a>
+
+        {% if user %}
+          <span class="userinfo">
+            | <a href="http://twitter.com/{{ user.screen_name }}">{{ user.screen_name }}</a>
+            ({% blocktrans with user.friends_count as user_friends_count %}following {{ user_friends_count }} tweeple{% endblocktrans %})
+            | <a href="/logout/">{% trans "log out" %}</a>
+          </span>
+
+          <div class="send_post">
+            <a href="/post/" class="post">&#x270e; Post</a>
+          </div>
+        {% endif %}
+      </h1>
+
+      {% block body %}{% endblock %}
+
+      <div class="footer">
+        {% blocktrans %}
+          <p><a href="/">Followize</a> was made by <a 
+            href="http://aftnn.org/">Ben Godfrey</a> and is powered by <a 
+            href="http://twitter.com/">Twitter</a> and <a 
+            href="http://code.google.com/appengine/">Google App Engine</a>.</p>
+        {% endblocktrans %}
+      </div>
+    </div>
+  </body>
+</html>
+

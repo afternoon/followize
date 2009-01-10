@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Post" %}{% endblock %}
+
+{% block body %}
+  <h2>{% trans "Post to Twitter" %}</h2>
+
+  <form action="/post/" method="post" class="veryverywide">
+    {{ form.as_div }}
+    <div class="form-submit">
+      <input type="submit" value="{% trans "Post" %}">
+    </div>
+  </form>
+{% endblock %}

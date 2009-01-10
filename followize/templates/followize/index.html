@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Hello!" %}{% endblock %}
+
+{% block body %}
+  <h2>{% trans "See the latest update from every person you follow." %}</h2>
+
+  <p>{% trans "Log in with your Twitter account" %}</p>
+
+  <p class="note">{% trans "We only use your Twitter details to do things you request. We remove your details from our system when you log out." %}</p>
+
+  <form action="/login/" method="post">
+    {{ form.as_div }}
+    <div class="form-submit">
+      <input type="submit" value="{% trans "Log in" %}">
+    </div>
+  </form>
+{% endblock %}
