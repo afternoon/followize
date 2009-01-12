@@ -4,6 +4,11 @@
 {% block title %}{% trans "Home" %}{% endblock %}
 
 {% block body %}
+  <div id="post_entry">
+    {% include "followize/post_entry.html" %}
+    <div class="close"><a href="#">Close</a></div>
+  </div>
+
   <div class="top">
     {% include "followize/pagination.html" %}
   </div>
@@ -37,11 +42,15 @@
         </td>
 
         <td class="send_reply">
-          <a href="/post/?status=%40{{ f.screen_name }}+&amp;in_reply_to={{ f.status.id }}" title="{% blocktrans with f.screen_name as f_screen_name %}Reply to {{ f_screen_name }}{% endblocktrans %}">&#x21ba;</a>
+          <a href="/post/?status=%40{{ f.screen_name }}%20&amp;in_reply_to={{ f.status.id }}" title="{% blocktrans with f.screen_name as f_screen_name %}Reply to {{ f_screen_name }}{% endblocktrans %}">&#x21ba;</a>
         </td>
 
         <td class="send_dm">
-          <a href="/post/?status=d+{{ f.screen_name }}+" title="{% blocktrans with f.screen_name as f_screen_name %}Direct message {{ f_screen_name }}{% endblocktrans %}">&#x2709;</a>
+          {% ifnotequal f.screen_name user.screen_name %}
+            <a href="/post/?status=d%20{{ f.screen_name }}%20" title="{% blocktrans with f.screen_name as f_screen_name %}Direct message {{ f_screen_name }}{% endblocktrans %}">&#x2709;</a>
+          {% else %}
+            &nbsp;
+          {% endifnotequal %}
         </td>
       </tr>
     {% endfor %}

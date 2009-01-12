@@ -18,7 +18,7 @@
 
   <body>
     <div class="page">
-      <h1>
+      <h1 id="header">
         <a href="/home/" title="Home">&#x272d; {% trans "Followize" %}</a>
 
         {% if user %}
@@ -29,7 +29,7 @@
           </span>
 
           <div class="send_post">
-            <a href="/post/" class="post">&#x270e; Post</a>
+            <a href="/post/" id="post">&#x270e; Post</a>
           </div>
         {% endif %}
       </h1>

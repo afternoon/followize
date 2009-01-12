@@ -31,7 +31,7 @@ h1 { font-size:small; padding-bottom:0.5em; border-bottom:2px solid #eee;
 
 .userinfo { font-size:x-small; font-weight:normal; color:grey; }
 .userinfo a { font-weight:bold; }
-.post { position:absolute; right:0; top:0; }
+#post { position:absolute; right:0; top:0; }
 
 .footer { margin-top:1em; border-top:2px solid #eee; padding-top:0.5em;
     font-size:x-small; }
@@ -83,6 +83,14 @@ td.send_dm { padding-right:0; }
 .pages li.previous { position:absolute; left:0; top:-0.3em; }
 .pages li.next { position:absolute; right:0; top:-0.3em; }
 .pages li span { font-weight:bold; }
+
+/* post entry on home */
+
+#post_entry { display:none; border-bottom:2px solid #eee; padding:0.5em;
+    margin:-0.5em 0 0.65em; position:relative; }
+#post_entry h2 { margin-top:0; }
+#post_entry .form-submit { margin-bottom:0.3em; }
+.close { position:absolute; right:0; top:0.5em; font-size:x-small; }
 
 /* post */
 

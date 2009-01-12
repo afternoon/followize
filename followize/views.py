@@ -120,6 +120,7 @@ def home(request):
         "following":    p.object_list,
         "page_range":   [paginator.page(i) for i in paginator.page_range],
         "current_page": p,
+        "form":         PostForm()
     }
     return render_to_response(u"followize/home.html", ctx)
 
