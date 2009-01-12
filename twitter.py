@@ -14,6 +14,27 @@ from django.utils.translation import ugettext as _
 log = getLogger(__name__)
 
 
+URL_USER = "http://twitter.com/users/show/%s.json"
+URL_FOLLOWING = "http://twitter.com/statuses/friends.json?page=%s"
+URL_UPDATE = "http://twitter.com/statuses/update.json"
+
+
+MONTHS = {
+    "jan":  1,
+    "feb":  2,
+    "mar":  3,
+    "apr":  4,
+    "may":  5,
+    "jun":  6,
+    "jul":  7,
+    "aug":  8,
+    "sep":  9,
+    "oct":  10,
+    "nov":  11,
+    "dec":  12
+}
+
+
 class AuthenticationException(Exception):
     pass
 class TimeoutException(Exception):
@@ -30,20 +51,6 @@ def parse_time(value):
     >>> parse_time("Sun Dec 14 11:29:30 +0000 2008")
     datetime(2008, 12, 14, 11, 29, 30)
     """
-    MONTHS = {
-        "jan":  1,
-        "feb":  2,
-        "mar":  3,
-        "apr":  4,
-        "may":  5,
-        "jun":  6,
-        "jul":  7,
-        "aug":  8,
-        "sep":  9,
-        "oct":  10,
-        "nov":  11,
-        "dec":  12
-    }
     day, month, date, time, timezone, year = value.lower().split()
     hour, min, sec = time.split(u":")
     return datetime(int(year), int(MONTHS[month]), int(date), int(hour),
@@ -54,6 +61,29 @@ def time_call(f, *args, **kwargs):
     t0 = time()
     val = f(*args, **kwargs)
     return val, time() - t0
+
+
+def num_pages(following_count):
+    """Calculate the number of pages required to get all info for all following.
+    
+    >>> num_pages(1)
+    1
+    >>> num_pages(100)
+    1
+    >>> num_pages(101)
+    2
+    >>> num_pages(155)
+    2
+    >>> num_pages(200)
+    2
+    >>> num_pages(201)
+    3
+    """
+    
+    n = following_count / settings.TWITTER_FRIENDS_PAGE_LENGTH
+    if following_count % settings.TWITTER_FRIENDS_PAGE_LENGTH > 0:
+        n += 1
+    return n
 
 
 class Twitter(object):
@@ -95,15 +125,12 @@ class Twitter(object):
                 raise TwitterError(data["error"])
             return data
 
-    def user(self, user_id):
+    def user(self, user_id=None):
         """Get info about user."""
-        data = self.load("http://twitter.com/users/show/%s.json" % user_id)
-        log.info(data)
-        return data
+        return self.load(URL_USER % (user_id if user_id else self.username))
     
-    def following(self, page=1):
-        """Get all people followed by auth'd user."""
-        return self.load("http://twitter.com/statuses/friends.json?page=%s" % page)
+    def following(self, page):
+        return self.load(URL_FOLLOWING % page)
         
     def update(self, status, in_reply_to=None):
         data = {"status": status}
@@ -114,5 +141,4 @@ class Twitter(object):
         
         log.info(u"Posting for %s: %s (%s)" % (self.username, status,
             in_reply_to))
-        response = self.load("http://twitter.com/statuses/update.json",
-                payload=data, method=POST)
+        response = self.load(URL_UPDATE, payload=data, method=POST)

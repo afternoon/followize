@@ -4,13 +4,13 @@
 {% block title %}{% trans "Home" %}{% endblock %}
 
 {% block body %}
-  {% if updated %}
-    <p class="message">{% trans "Update posted!" %}</p>
-  {% endif %}
+  <div class="top">
+    {% include "followize/pagination.html" %}
+  </div>
 
   <table class="following" cellpadding="0" cellspacing="0">
     {% for f in following %}
-      <tr class="update{% if f.status.in_reply_to_me %} reply_to_me{% endif %}{% if forloop.last %} last{% endif %}">
+      <tr class="update{% ifequal f.screen_name user.screen_name %} me{% endifequal %}{% if f.status.in_reply_to_me %} reply_to_me{% endif %}{% if forloop.last %} last{% endif %}">
         <td class="profile_image">
           <a href="http://twitter.com/{{ f.screen_name }}" title="{{ f.name }} &mdash; {{ f.description }}"><img src="{{ f.profile_image_url }}" width="14" height="14" alt="{% blocktrans with f.name as f_name %}{{ f_name }}'s avatar{% endblocktrans %}"></a>
         </td>
@@ -47,11 +47,7 @@
     {% endfor %}
   </table>
 
-  {% if pages %}
-    <ul class="pages">
-      {% for p in pages %}
-        <li>{% ifequal p page %}<span>{% trans "Page" %} {{ p }}</span>{% else %}<a href="/home/?page={{ p }}">{% trans "Page" %} {{ p }}</a>{% endifequal %}</li>
-      {% endfor %}
-    </ul>
-  {% endif%}
+  <div class="bottom">
+    {% include "followize/pagination.html" %}
+  </div>
 {% endblock %}

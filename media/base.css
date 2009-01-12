@@ -25,7 +25,7 @@ dt { font-weight:bold; margin-top:0.7em; }
 
 /* layout */
 
-.page { width:940px; margin:20px auto; }
+.page { margin:20px 40px; }
 h1 { font-size:small; padding-bottom:0.5em; border-bottom:2px solid #eee;
     position:relative; }
 
@@ -42,7 +42,6 @@ h1 { font-size:small; padding-bottom:0.5em; border-bottom:2px solid #eee;
 .clear { clear:both; }
 .error { color:red; }
 .note { color:grey; font-size:x-small; }
-.message { background-color:lemonchiffon; padding:3px; font-weight:bold; }
 
 /* forms */
 
@@ -66,8 +65,9 @@ input, textarea, select { font-size:1em; }
 .following { padding:0; margin:0; border:0; }
 .update td { border-bottom:1px solid #eee; padding:3px; }
 .last td { border-bottom:none; }
+.me { background-color:lemonchiffon; }
 .reply_to_me { background-color:#eee; }
-.reply_to_me .status { font-weight:bold; }
+.me .status, .reply_to_me .status { font-weight:bold; }
 td.profile_image { padding-left:0; }
 .name { font-weight:bold; }
 .created_at, .reply { font-size:x-small; color:grey; }
@@ -75,14 +75,17 @@ td.send_dm { padding-right:0; }
 
 /* pagination */
 
-.pages { margin:1.5em 0 2em 0; padding:0; text-align:center; }
-.pages li { display:inline; margin:0 0.1em; border:2px solid #eee;
-    padding:0.5em; }
+.pages { margin:0; padding:0; text-align:center; position:relative; }
+.top .pages { margin-bottom:0.5em; }
+.bottom .pages { margin-top:0.5em; }
+.pages li { display:inline; padding:0.3em 0.4em; background-color:#f9f9f9; }
+.pages li.previous { position:absolute; left:0; top:-0.3em; }
+.pages li.next { position:absolute; right:0; top:-0.3em; }
 .pages li span { font-weight:bold; }
 
 /* post */
 
-#id_status { width:934px; }
+#id_status { width:98%; }
 .veryverywide label { display:none; }
 .veryverywide .form-line ul.errorlist { margin:5px 0 0; padding:0; }
 .veryverywide .form-line ul.errorlist li { color:red; margin:0; padding:0;
