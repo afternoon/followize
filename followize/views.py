@@ -119,7 +119,7 @@ def home(request):
     ctx = {
         "user":         u,
         "following":    p.object_list,
-        "pages":        paginator,
+        "page_range":   [paginator.page(i) for i in paginator.page_range],
         "current_page": p,
     }
     return render_to_response(u"followize/home.html", ctx)

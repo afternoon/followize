@@ -4,8 +4,8 @@
     {% if current_page.has_previous %}
       <li class="previous">&larr; <a href="/home/?page={{ current_page.previous_page_number }}">{% trans "Chatterboxes" %}</a></li>
     {% endif %}
-    {% for page in pages.page_range %}
-      <li>{% ifequal page current_page.number %}<span>{% trans "Page" %} {{ page }}</span>{% else %}<a href="/home/?page={{ page }}">{% trans "Page" %} {{ page }}</a>{% endifequal %}</li>
+    {% for page in page_range %}
+      <li>{% ifequal page.number current_page.number %}<span>{{ page.start_index }} - {{ page.end_index }}</span>{% else %}<a href="/home/?page={{ page.number }}">{{ page.start_index }} - {{ page.end_index }}</a>{% endifequal %}</li>
     {% endfor %}
     {% if current_page.has_next %}
       <li class="next"><a href="/home/?page={{ current_page.next_page_number }}">{% trans "Lurkers" %}</a> &rarr;</li>
