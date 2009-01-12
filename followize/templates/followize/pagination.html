@@ -8,7 +8,7 @@
       <li>{% ifequal page current_page.number %}<span>{% trans "Page" %} {{ page }}</span>{% else %}<a href="/home/?page={{ page }}">{% trans "Page" %} {{ page }}</a>{% endifequal %}</li>
     {% endfor %}
     {% if current_page.has_next %}
-      <li class="next"><a href="/home/?page={{ current_page.next_page_number }}">{% trans "Quiet types" %}</a> &rarr;</li>
+      <li class="next"><a href="/home/?page={{ current_page.next_page_number }}">{% trans "Lurkers" %}</a> &rarr;</li>
     {% endif %}
   </ul>
 {% endif%}
