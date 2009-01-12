@@ -19,16 +19,18 @@ from twitter import AuthenticationException, num_pages, parse_time, time_call, \
 log = getLogger(__name__)
 
 
-def user(tw, ignore_cache=False):
+def user(tw, username=None, ignore_cache=False):
+    if not username:
+        username = tw.username
     if ignore_cache:
         data = None
     else:
-        data = memcache.get("%s_%s_info" % (tw.username, tw.password))
+        data = memcache.get("%s_info" % (tw.username))
     if not data:
-        data = tw.user()
+        data = tw.user(username)
         data["password"] = tw.password
         data = link_titles(tw, reply_to_me(tw, add_reply_data(tw, data)))
-        memcache.set("%s_%s_info" % (tw.username, tw.password), data,
+        memcache.set("%s_info" % (tw.username), data,
                 settings.FOLLOWIZE_CACHE_TIMEOUT_USER_INFO)
     return data
 
@@ -130,3 +132,8 @@ def following(tw):
 def update(tw, status, in_reply_to):
     tw.update(status, in_reply_to)
     u = user(tw, ignore_cache=True)
+
+
+def is_follower(tw, username):
+    other_user = user(tw, username=username)
+    return other_user["following"]

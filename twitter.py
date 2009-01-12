@@ -14,6 +14,7 @@ from django.utils.translation import ugettext as _
 log = getLogger(__name__)
 
 
+URL_VERIFY_CREDENTIALS = "http://twitter.com/account/verify_credentials.json"
 URL_USER = "http://twitter.com/users/show/%s.json"
 URL_FOLLOWING = "http://twitter.com/statuses/friends.json?page=%s"
 URL_UPDATE = "http://twitter.com/statuses/update.json"
@@ -124,6 +125,9 @@ class Twitter(object):
             if "error" in data:
                 raise TwitterError(data["error"])
             return data
+
+    def verify_credentials(self):
+        return self.load(URL_VERIFY_CREDENTIALS)
 
     def user(self, user_id=None):
         """Get info about user."""

@@ -4,5 +4,5 @@
 {% block title %}{% trans "Fail" %}{% endblock %}
 
 {% block body %}
-  <p class="error">{{ message|default:_("FAIL.") }}</p>
+  <p class="error">{{ message|safe|default:_("FAIL.") }}</p>
 {% endblock %}

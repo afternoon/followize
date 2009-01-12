@@ -12,7 +12,7 @@ from django.utils.translation import ugettext as _
 
 from forms import LoginForm, PostForm
 from decorators import username_required
-from models import following, session_user, update, user
+from models import following, is_follower, session_user, update, user
 from twitter import AuthenticationException, num_pages, TimeoutException, \
         Twitter, TwitterError
 
@@ -57,23 +57,22 @@ def login(request):
     if form.errors:
         return index(request, form)
 
-    # try to get following from Twitter
-    username = form.cleaned_data["username"]
-    password = form.cleaned_data["password"]
+    # check user creds with Twitter
+    tw = Twitter(form.cleaned_data["username"], form.cleaned_data["password"])
     try:
-        tw = Twitter(username, password)
-        user_info = user(tw)
+        user_info = tw.verify_credentials()
     except AuthenticationException:
-        form.errors["password"] = [_(u"Wrong username and password combination")]
+        form.errors["password"] = [_(u"Wrong username and password"
+                u" combination.")]
         return index(request, form)
     except TwitterError, e:
         return fail(request, _(u"Twitter error: %s") % e.message)
     except Exception, e:
         return fail(request, e.message)
 
-    if user_info:
-        request.session["username"] = username
-        request.session["password"] = password
+    if user_info and "error" not in user_info:
+        request.session["username"] = tw.username
+        request.session["password"] = tw.password
         log.info(u"%s logged in, following %s" % (user_info["screen_name"],
             user_info["friends_count"]))
         return HttpResponseRedirect(reverse("home"))
@@ -125,17 +124,29 @@ def home(request):
     return render_to_response(u"followize/home.html", ctx)
 
 
+def cant_dm(request, recipient):
+    return fail(request, _(u"You can't send direct messages to %s."
+            u" They don't follow you.<br><br>"
+            u" You could <a href=\"%s?status=%%40%s+\">@reply</a> instead." %
+            (recipient, reverse("post"), recipient)))
+
+
 @username_required
 def post(request):
     """Post to Twitter"""
     form = PostForm(request.REQUEST)
     u = session_user(request.session)
 
+    tw = Twitter(request.session["username"], request.session["password"])
+
     if request.method == u"POST" and not form.errors:
         status = form.cleaned_data["status"]
         in_reply_to = form.cleaned_data.get("in_reply_to", u"")
 
-        tw = Twitter(request.session["username"], request.session["password"])
+        if status.startswith(u"d "):
+            recipient = status.split()[1]
+            if not is_follower(tw, recipient):
+                return cant_dm(request, recipient)
 
         try:
             update(tw, status, in_reply_to)
@@ -146,6 +157,12 @@ def post(request):
         return HttpResponseRedirect(reverse("home"))
 
     if request.method == u"GET":
+        status = request.GET.get("status", u"")
+        if status.startswith(u"d "):
+            recipient = status.split()[1]
+            if not is_follower(tw, recipient):
+                return cant_dm(request, recipient)
+
         form["status"].field.required = False
 
     ctx = {
