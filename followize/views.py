@@ -13,7 +13,8 @@ from django.utils.translation import ugettext as _
 
 from forms import LoginForm, PostForm
 from decorators import return_json, username_required
-from models import following, is_follower, session_user, update, user
+from models import following, is_follower, session_user, update, user, \
+        verify_credentials
 from twitter import AuthenticationException, num_pages, TimeoutException, \
         Twitter, TwitterError
 
@@ -61,7 +62,7 @@ def login(request):
     # check user creds with Twitter
     tw = Twitter(form.cleaned_data["username"], form.cleaned_data["password"])
     try:
-        user_info = tw.verify_credentials()
+        user_info = verify_credentials(tw)
     except AuthenticationException:
         form.errors["password"] = [_(u"Wrong username and password"
                 u" combination.")]

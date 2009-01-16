@@ -19,6 +19,15 @@ from twitter import AuthenticationException, num_pages, parse_time, \
 log = getLogger(__name__)
 
 
+def verify_credentials(tw):
+    data = tw.verify_credentials()
+    data["password"] = tw.password
+    data = link_titles(tw, reply_to_me(tw, add_reply_data(tw, data)))
+    memcache.set("%s_info" % (tw.username), data,
+            settings.FOLLOWIZE_CACHE_TIMEOUT_USER_INFO)
+    return data
+
+
 def user(tw, username=None, ignore_cache=False):
     if not username:
         username = tw.username
