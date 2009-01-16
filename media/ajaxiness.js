@@ -56,10 +56,11 @@ function parseQs(qs) {
 function post(text, in_reply_to) {
     var statusNodes = $("#id_status");
     $("body, html").animate({scrollTop: 0}, 100);
-    $("#post_entry").show(50);
-    if (typeof text !== "undefined") statusNodes[0].value = text;
-    if (typeof in_reply_to !== "undefined") $("#id_in_reply_to")[0].value = in_reply_to;
-    focusNoSelection(statusNodes[0]);
+    $("#post_entry").show(50, function() {
+        if (typeof text !== "undefined") statusNodes[0].value = text;
+        if (typeof in_reply_to !== "undefined") $("#id_in_reply_to")[0].value = in_reply_to;
+        focusNoSelection(statusNodes[0]);
+    });
 }
 
 function hide_post() {
