@@ -215,8 +215,9 @@ function renderTweet(row, type, data, sendDm) {
     var html = [
         userInfo,
         '<span class="text">', addLinks(data.text), '</span> ',
-        '<span class="created_at">', timediff(data.created_at), '</span>',
-        in_reply_to,
+        '<span class="created_at">', timediff(data.created_at), '</span> ',
+        '<span class="source">from ', data.source, '</span>',
+        in_reply_to
     ];
 
     statusDatum.html(html.join(""));

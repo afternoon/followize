@@ -11,8 +11,8 @@ img { vertical-align:middle; }
 
 a:link { color:#06c; background-color:transparent; }
 a:visited { color:#039; background-color:transparent; }
-a:hover { color:white; background-color:#06c; }
-a:active { color:#039; background-color:#06c; }
+a:hover { color:#06c; background-color:#eef; }
+a:active { color:white; background-color:#06c; }
 
 /* content typography */
 
@@ -76,11 +76,15 @@ input, textarea, select { font-size:1em; }
 .user td { border-top:1px solid #eee; }
 .first td { border-top:none; }
 .me { background-color:#fffacd; }
+.me a:hover { background-color:#eeb; }
+.me a:active { background-color:#960; }
 .reply_to_me { background-color:#eee; }
+.reply_to_me a:hover { background-color:#ddd; }
+.reply_to_me a:active { background-color:#666; }
 .me .status, .reply_to_me .status { font-weight:bold; }
 td.profile_image { padding-left:0; }
 .name { font-weight:bold; }
-.created_at, .reply { font-size:x-small; color:#777; }
+.created_at, .source, .reply { font-size:x-small; color:#777; }
 td.send_dm { padding-right:0; }
 
 /* pagination */
@@ -89,6 +93,8 @@ td.send_dm { padding-right:0; }
 .top .pages { margin-bottom:0.5em; }
 .bottom .pages { margin-top:0.5em; }
 .pages li { display:inline; padding:0.3em; background-color:#f9f9f9; }
+.pages li a:hover { background-color:#ddd; }
+.pages li a:active { background-color:#666; }
 .pages li.previous { position:absolute; left:0; top:-0.3em; }
 .pages li.next { position:absolute; right:0; top:-0.3em; }
 .pages li span { font-weight:bold; }

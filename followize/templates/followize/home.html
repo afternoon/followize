@@ -34,6 +34,11 @@
               {{ f.status.created_at|twitter_timediff:user }}
             </span>
 
+            <span class="source">
+              {% trans "from" %}
+              {{ f.status.source|safe }}
+            </span>
+
             {% if f.status.in_reply_to_status_id %}
               <span class="reply">
                 {% trans "in reply to" %}
