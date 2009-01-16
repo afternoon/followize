@@ -205,7 +205,7 @@ function renderTweet(row, type, data, sendDm) {
         in_reply_to = [
             '<span class="reply">',
                 ' in reply to ',
-                '<a href="http://twitter.com/', data.in_reply_to_screen_name, '/status/', data.in_reply_to_status_id, '" title="View ', data.in_reply_to_screen_name, '\'s tweet">',
+                '<a href="http://twitter.com/', data.in_reply_to_screen_name, '/status/', data.in_reply_to_status_id, '" title="View ', data.in_reply_to_screen_name, '\'s status">',
                     data.in_reply_to_screen_name, 
                 '</a>',
             '</span>',
@@ -284,7 +284,7 @@ function showOriginal(anchor) {
     var screenName = urlBits[1];
     var statusId = urlBits[3];
     var url = "/json/status/" + statusId + "/";
-    var objectName = "original tweet";
+    var objectName = "status";
 
     loadTweets(row, "original", url, objectName);
 }
