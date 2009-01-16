@@ -22,7 +22,7 @@ function focusNoSelection(input) {
 
 function updateCharsRemaining(e) {
     var statusNodes = $("#id_status");
-    var n = 140 - statusNodes[0].value.length;
+    var n = new String(140 - statusNodes[0].value.length);
     var noteNodes = $("#chars_remaining");
     if (noteNodes.length === 0) {
         statusNodes.after('<div class="note">Characters remaining: <span id="chars_remaining">' + n + '</span></div>');
@@ -47,7 +47,6 @@ function parseQs(qs) {
 
 function post(text, in_reply_to) {
     var statusNodes = $("#id_status");
-    updateCharsRemaining();
     $("body, html").animate({scrollTop: 0}, 100);
     $("#post_entry").show(50);
     statusNodes[0].value = text;
