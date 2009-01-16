@@ -8,10 +8,11 @@ from django.core.paginator import Paginator
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
+from django.utils.simplejson import dumps
 from django.utils.translation import ugettext as _
 
 from forms import LoginForm, PostForm
-from decorators import username_required
+from decorators import return_json, username_required
 from models import following, is_follower, session_user, update, user
 from twitter import AuthenticationException, num_pages, TimeoutException, \
         Twitter, TwitterError
@@ -171,3 +172,26 @@ def post(request):
         "user":     u,
     }
     return render_to_response(u"followize/post.html", ctx)
+
+
+@username_required
+@return_json
+def json_following(request, page):
+    tw = Twitter(request.session["username"], request.session["password"])
+    user_following = following(tw)
+    paginator = Paginator(user_following, settings.FOLLOWIZE_PAGE_LENGTH)
+    return dumps(paginator.page(page))
+
+
+@username_required
+@return_json
+def json_status(request, status_id):
+    tw = Twitter(request.session["username"], request.session["password"])
+    return tw.status(status_id, json=True)
+
+
+@username_required
+@return_json
+def json_timeline(request, username):
+    tw = Twitter(request.session["username"], request.session["password"])
+    return tw.timeline(username, json=True)

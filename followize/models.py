@@ -12,8 +12,8 @@ from BeautifulSoup import BeautifulSoup
 
 from afternoon.django.templatetags import AT_REPLIES_RE
 
-from twitter import AuthenticationException, num_pages, parse_time, time_call, \
-        TimeoutException, Twitter, TwitterError
+from twitter import AuthenticationException, num_pages, parse_time, \
+        StaticTzInfo, time_call, TimeoutException, Twitter, TwitterError
 
 
 log = getLogger(__name__)
@@ -45,8 +45,17 @@ def session_user(session):
     return user(tw)
 
 
+def timeline(tw, username):
+    timeline = memcache.get("%s_timeline" % username)
+    if not timeline:
+        timeline = tw.timeline(username)
+        memcache.set("%s_timeline" % username, timeline,
+                settings.FOLLOWIZE_CACHE_TIMEOUT_TIMELINES)
+    return timeline
+
+
 def add_reply_data(tw, f):
-    if f["status"]["in_reply_to_status_id"]:
+    if "status" in f and f["status"]["in_reply_to_status_id"]:
         matches = AT_REPLIES_RE.match(f["status"]["text"])
         if matches:
             user_data = {"screen_name": matches.groups()[0]}
@@ -55,7 +64,7 @@ def add_reply_data(tw, f):
 
 
 def reply_to_me(tw, f):
-    if "in_reply_to_user" in f["status"]:
+    if "status" in f and "in_reply_to_user" in f["status"]:
         reply_to_name = f["status"]["in_reply_to_user"]["screen_name"]
         f["status"]["in_reply_to_me"] = reply_to_name == tw.username
     return f
@@ -96,7 +105,7 @@ def link_up(t):
 
 
 def link_titles(tw, f):
-    if settings.FOLLOWIZE_ADD_LINK_TITLES:
+    if settings.FOLLOWIZE_ADD_LINK_TITLES and "status" in f:
         tokens = f["status"]["text"].split()
         f["status"]["text"] = u" ".join([link_up(t) for t in tokens])
     return f
@@ -114,11 +123,6 @@ def following_page(tw, page=1):
     return data
 
 
-def cmp_following(x, y):
-    return cmp(parse_time(x["status"]["created_at"]),
-            parse_time(y["status"]["created_at"]))
-
-
 def following(tw):
     u = user(tw)
     data = [u]
@@ -126,6 +130,17 @@ def following(tw):
             num_pages(u["friends_count"]))
     for i in range(1, pages_to_load + 1):
         data += following_page(tw, i)
+
+    tzinfo = StaticTzInfo(u["utc_offset"])
+
+    def cmp_following(x, y):
+        if "status" not in x:
+            return -1
+        if "status" not in y:
+            return 1
+        return cmp(parse_time(x["status"]["created_at"], tzinfo),
+                parse_time(y["status"]["created_at"], tzinfo))
+
     return sorted(data, cmp=cmp_following, reverse=True)
         
 

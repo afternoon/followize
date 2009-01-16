@@ -64,8 +64,9 @@ input, textarea, select { font-size:1em; }
 /* home */
 
 .following { padding:0; margin:0; border:0; }
-.update td { border-bottom:1px solid #eee; padding:3px; }
-.last td { border-bottom:none; }
+.following td { padding:3px; }
+.user td { border-top:1px solid #eee; }
+.first td { border-top:none; }
 .me { background-color:lemonchiffon; }
 .reply_to_me { background-color:#eee; }
 .me .status, .reply_to_me .status { font-weight:bold; }
@@ -91,6 +92,11 @@ td.send_dm { padding-right:0; }
 #post_entry h2 { margin-top:0; }
 #post_entry .form-submit { margin-bottom:0.3em; }
 .close { position:absolute; right:0; top:0.5em; font-size:x-small; }
+
+/* inline replies */
+
+.original .status { padding-left:3em; }
+.loading { color:grey; }
 
 /* post */
 

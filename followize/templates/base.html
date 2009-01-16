@@ -12,6 +12,11 @@
 
     <script type="text/javascript" src="/media/jquery-1.2.6.min.js"></script>
     <script type="text/javascript" src="/media/ajaxiness.js"></script>
+    {% if user %}
+      <script type="text/javascript">
+        var timezoneOffset = {{ user.utc_offset }}000;
+      </script>
+    {% endif %}
 
     <meta name="description" content="See the latest update from every person you follow.">
   </head>

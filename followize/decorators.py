@@ -1,5 +1,5 @@
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 
 
 def username_required(f):
@@ -12,4 +12,15 @@ def username_required(f):
             return HttpResponseRedirect(reverse("index"))
         else:
             return f(request, *args, **kwargs)
+    return f_
+
+
+def return_json(f):
+    """Return value is JSON. Tell the browser."""
+    def f_(request, *args, **kwargs):
+        try:
+            response = f(request, *args, **kwargs)
+        except Exception, e:
+            response = """{"error": "%s"}""" % e.message
+        return HttpResponse(response, mimetype=u"application/json")
     return f_
