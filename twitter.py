@@ -97,6 +97,8 @@ def parse_time(value, tzinfo):
     >>> parse_time("Sun Dec 14 11:29:30 +0000 2008", StaticTzInfo(8))
     datetime(2008, 12, 22, 11, 29, 30)
     """
+    if not value:
+        return None
     day, month, date, time, timezone, year = value.lower().split()
     hour, min, sec = time.split(u":")
     utc_dt = datetime(int(year), int(MONTHS[month]), int(date), int(hour),

@@ -2,8 +2,9 @@ var MONTH_SHORT_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
         "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 var SIMPLE_EMAIL_RE = /^\S+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+$/;
-var AT_REPLIES_RE = /@(\w+)/;
-var HASHTAGS_RE = /#(\w*[A-Za-z_]\w+)/;
+var AT_REPLIES_RE = /@(\w+)/g;
+var HASHTAGS_RE = /#(\w*[A-Za-z_]\w+)/g;
+var LONELY_AMP_RE = /&([^#a-zA-Z0-9])/g;
 
 
 function ajaxEnabled() {
@@ -121,10 +122,6 @@ function makeLink(text) {
     else return text;
 }
 
-function escapeHtml(html) {
-    return html.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&#39;");
-}
-
 function urlize(text) {
     return $.map(text.split(" "), makeLink).join(" ");
 }
@@ -146,8 +143,12 @@ function hashtags(text) {
     return text.replace(HASHTAGS_RE, replace_text);
 }
 
+function escapeLonelyAmps(text) {
+    return text.replace(LONELY_AMP_RE, "&amp;$1");
+}
+
 function addLinks(text) {
-    return urlize(atReplies(hashtags(escapeHtml(text))));
+    return urlize(atReplies(hashtags(escapeLonelyAmps(text))));
 }
 
 function getRowUserClass(row) {

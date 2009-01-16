@@ -17,11 +17,11 @@
     {% for f in following %}
       <tr id="user_{{ f.screen_name }}" class="user user_{{ f.screen_name }}{% ifequal f.screen_name user.screen_name %} me{% endifequal %}{% if f.status.in_reply_to_me %} reply_to_me{% endif %}{% if forloop.first %} first{% endif %}">
         <td class="profile_image">
-          <a href="http://twitter.com/{{ f.screen_name }}" title="{{ f.name }} &mdash; {{ f.description }}"><img src="{{ f.profile_image_url }}" width="14" height="14" alt=""></a>
+          <a href="http://twitter.com/{{ f.screen_name }}" title="{{ f.name }} &mdash; {{ f.description|safe }}"><img src="{{ f.profile_image_url }}" width="14" height="14" alt=""></a>
         </td>
 
         <td class="name">
-          <a href="http://twitter.com/{{ f.screen_name }}" title="{{ f.name }} &mdash; {{ f.description }}">{{ f.screen_name }}</a>
+          <a href="http://twitter.com/{{ f.screen_name }}" title="{{ f.name }} &mdash; {{ f.description|safe }}">{{ f.screen_name }}</a>
         </td>
 
         <td class="status">
