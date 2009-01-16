@@ -249,8 +249,7 @@ function renderTweets(row, data, objectName) {
         }
     }
     else {
-        $(".status", row).html('<span class="error">Couldn\'t load ' +
-                objectName + '. (' + data.error + ')</span>');
+        $(".status", row).html('<span class="error">' + data.error + '</span>');
     }
 }
 
