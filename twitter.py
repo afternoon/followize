@@ -86,7 +86,7 @@ class StaticTzInfo(tzinfo):
         """Convert naive time to local time"""
         if dt.tzinfo is not None:
             raise ValueError, "Not naive datetime (tzinfo is already set)"
-        return dt.replace(tzinfo=self) + self._utcoffset
+        return dt.replace(tzinfo=self)
 
 
 def parse_time(value, tzinfo):
@@ -94,6 +94,8 @@ def parse_time(value, tzinfo):
     
     >>> parse_time("Sun Dec 14 11:29:30 +0000 2008", StaticTzInfo(0))
     datetime(2008, 12, 14, 11, 29, 30)
+    >>> parse_time("Sun Dec 14 11:29:30 +0000 2008", StaticTzInfo(8))
+    datetime(2008, 12, 22, 11, 29, 30)
     """
     day, month, date, time, timezone, year = value.lower().split()
     hour, min, sec = time.split(u":")
