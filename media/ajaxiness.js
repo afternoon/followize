@@ -141,12 +141,12 @@ function atReplies(text) {
 }
 
 function stocktwits(text) {
-    var replace_text = "#<a href=\"http://www.stocktwits.com/t/$1/\">$1</a>"
+    var replace_text = "$<a href=\"http://www.stocktwits.com/t/$1/\">$1</a>";
     return text.replace(STOCKTWITS_RE, replace_text);
 }
 
 function hashtags(text) {
-    var replace_text = "#<a href=\"http://hashtags.org/tag/$1/\">$1</a>"
+    var replace_text = "#<a href=\"http://hashtags.org/tag/$1/\">$1</a>";
     return text.replace(HASHTAGS_RE, replace_text);
 }
 
