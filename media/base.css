@@ -64,6 +64,11 @@ input, textarea, select { font-size:1em; }
 .form-line ul.errorlist li { color:red; margin:0; padding:0;
     list-style-type:none; }
 
+/* login */
+
+.form-title { margin-top:1.5em; }
+.note { margin:1.5em 0 0 0; }
+
 /* home */
 
 .following { padding:0; margin:0; border:0; }
