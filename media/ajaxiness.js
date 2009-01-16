@@ -56,8 +56,8 @@ function post(text, in_reply_to) {
     var statusNodes = $("#id_status");
     $("body, html").animate({scrollTop: 0}, 100);
     $("#post_entry").show(50);
-    statusNodes[0].value = text;
-    $("#id_in_reply_to")[0].value = in_reply_to;
+    if (typeof text !== "undefined") statusNodes[0].value = text;
+    if (typeof in_reply_to !== "undefined") $("#id_in_reply_to")[0].value = in_reply_to;
     focusNoSelection(statusNodes[0]);
 }
 
@@ -309,7 +309,7 @@ $(document).ready(function() {
     }
 
     $(".close a").click(function(e) { hide_post(); return false; })
-    $("#post").click(function(e) { post(""); return false; });
+    $("#post").click(function(e) { post(); return false; });
 
     // not ready for prime time
     $(".profile_image a, .name a").click(function(e) { showTimeline(this); return false; });

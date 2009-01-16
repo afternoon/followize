@@ -167,6 +167,10 @@ def post(request):
 
         form["status"].field.required = False
 
+    if "in_reply_to" in form.errors:
+        return fail(request, _(u"%s is not a valid status ID to reply to." %
+            request.REQUEST["in_reply_to"]))
+
     ctx = {
         "form":     form,
         "user":     u,
