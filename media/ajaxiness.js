@@ -28,7 +28,7 @@ function updateCharsRemaining(e) {
 
     var noteNodes = $("#chars_remaining");
     if (noteNodes.length === 0) {
-        statusNodes.after('<div class="note">Characters remaining: <span id="chars_remaining">' + n + '</span></div>');
+        statusNodes.after('<div class="form-note">Characters remaining: <span id="chars_remaining">' + n + '</span></div>');
         var noteNodes = $("#chars_remaining");
     }
     else {
@@ -185,8 +185,10 @@ function makeNewRow(row, rowClass, rowUserClass, objectName, sendReplyContent, s
     return newRow;
 }
 
-function renderTweet(container, type, data) {
+function renderTweet(row, type, data, sendDm) {
+    var statusDatum = $(".status", row);
     var userInfo = "";
+
     if (type === "original") {
         userInfo = [
             '<span class="profile_image">',
@@ -217,8 +219,16 @@ function renderTweet(container, type, data) {
         in_reply_to,
     ];
 
-    container.html(html.join(""));
-    enhanceLinks(container);
+    statusDatum.html(html.join(""));
+    enhanceLinks(statusDatum);
+
+    $(".send_reply", row).html('<a href="/post/?status=%40' + data.user.screen_name +
+            '%20&in_reply_to=' + data.id + '" title="Reply to ' + data.user.screen_name +
+            '">&#x21ba;</a>');
+    if (sendDm) {
+        $(".send_dm", row).html('<a href="/post/?status=d%20' + data.user.screen_name +
+                '%20" title="Direct message ' + data.user.screen_name + '">&#x2709;</a>');
+    }
 }
 
 function renderTweets(row, data, objectName) {
@@ -227,14 +237,14 @@ function renderTweets(row, data, objectName) {
         if (typeof data.user === "undefined") {
             var nextRow = row;
             for (var i = 1; i < data.length; i++) {
-                renderTweet($(".status", nextRow), "old", data[i]);
+                renderTweet(nextRow, "old", data[i], false);
                 if (i < data.length - 1) {
-                    nextRow = makeNewRow(nextRow, "old", rowUserClass, objectName, "&nbsp;", "&nbsp;");
+                    nextRow = makeNewRow(nextRow, "old", rowUserClass, objectName);
                 }
             }
         }
         else {
-            renderTweet($(".status", row), "original", data);
+            renderTweet(row, "original", data, true);
         }
     }
     else {
@@ -243,19 +253,23 @@ function renderTweets(row, data, objectName) {
     }
 }
 
-function loadTweets(row, rowClass, url, objectName, sendReplyContent, sendDmContent) {
-    console.log(row, rowClass, url, objectName, sendReplyContent, sendDmContent);
-    var newRow = makeNewRow(row, rowClass, getRowUserClass(row), objectName, sendReplyContent, sendDmContent);
-    $.ajax({
+function loadTweets(row, rowClass, url, objectName) {
+    var newRow = makeNewRow(row, rowClass, getRowUserClass(row), objectName);
+    function onSuccess(data) {
+        renderTweets(newRow, data, objectName);
+    }
+    function onError(e, xhr, options, thrownError) {
+        console.log({"e": e, "xhr": xhr, "options": options, "thrownError": thrownError});
+        $(".status", newRow).html('<span class="error">Couldn\'t load ' + objectName + '.</span>');
+    }
+    var ajaxOpts = {
         type:       "GET",
         url:        url,
-        success:    function(data) { renderTweets(newRow, data, objectName); },
-        error:      function (e, xhr, options, thrownError) {
-                        console.log({"e": e, "xhr": xhr, "options": options, "thrownError": thrownError});
-                        $(".status", newRow).html('<span class="error">Couldn\'t load ' + objectName + '.</span>');
-                    },
+        success:    onSuccess,
+        error:      onError,
         dataType:   "json"
-    });
+    }
+    $.ajax(ajaxOpts);
 }
 
 function showOriginal(anchor) {
@@ -271,11 +285,8 @@ function showOriginal(anchor) {
     var statusId = urlBits[3];
     var url = "/json/status/" + statusId + "/";
     var objectName = "original tweet";
-    var sendReplyContent = '<a href="/post/?status=%40' + screenName + '%20&in_reply_to=' + statusId + '" title="Reply to ' + screenName + '">&#x21ba;</a>';
-    var sendDmContent = '<a href="/post/?status=d%20' + screenName + '%20" title="Direct message ' + screenName + '">&#x2709;</a>';
 
-    loadTweets(row, "original", url, objectName, sendReplyContent,
-            sendDmContent);
+    loadTweets(row, "original", url, objectName);
 }
 
 function hideOriginals(anchor) {
@@ -299,7 +310,7 @@ function showTimeline(anchor) {
     var url = "/json/timeline/" + screenName + "/?count=11";
     var objectName = "timeline";
 
-    loadTweets(siblingRow, "old", url, objectName, "&nbsp;", "&nbsp;");
+    loadTweets(siblingRow, "old", url, objectName);
 }
 
 function hideTimeline(anchor) {
