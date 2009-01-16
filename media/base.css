@@ -9,10 +9,10 @@ img { vertical-align:middle; }
 
 /* default links */
 
-a:link { color:#06c; }
-a:visited { color:#039; }
+a:link { color:#06c; background-color:transparent; }
+a:visited { color:#039; background-color:transparent; }
 a:hover { color:white; background-color:#06c; }
-a:active { color:#06c; background-color:#06c; }
+a:active { color:#039; background-color:#06c; }
 
 /* content typography */
 
@@ -29,7 +29,7 @@ dt { font-weight:bold; margin-top:0.7em; }
 h1 { font-size:small; padding-bottom:0.5em; border-bottom:2px solid #eee;
     position:relative; }
 
-.userinfo { font-size:x-small; font-weight:normal; color:grey; }
+.userinfo { font-size:x-small; font-weight:normal; color:#777; }
 .userinfo a { font-weight:bold; }
 #post { position:absolute; right:0; top:0; }
 
@@ -41,7 +41,7 @@ h1 { font-size:small; padding-bottom:0.5em; border-bottom:2px solid #eee;
 
 .clear { clear:both; }
 .error { color:red; }
-.note { color:grey; font-size:x-small; }
+.note { color:#777; font-size:x-small; }
 .ok { color:#0f0; }
 
 /* forms */
@@ -67,12 +67,12 @@ input, textarea, select { font-size:1em; }
 .following td { padding:3px; }
 .user td { border-top:1px solid #eee; }
 .first td { border-top:none; }
-.me { background-color:lemonchiffon; }
+.me { background-color:#fffacd; }
 .reply_to_me { background-color:#eee; }
 .me .status, .reply_to_me .status { font-weight:bold; }
 td.profile_image { padding-left:0; }
 .name { font-weight:bold; }
-.created_at, .reply { font-size:x-small; color:grey; }
+.created_at, .reply { font-size:x-small; color:#777; }
 td.send_dm { padding-right:0; }
 
 /* pagination */
@@ -96,7 +96,7 @@ td.send_dm { padding-right:0; }
 /* inline replies */
 
 .original .status { padding-left:3em; }
-.loading { color:grey; }
+.loading { color:#777; }
 
 /* post */
 
