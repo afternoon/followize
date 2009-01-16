@@ -22,14 +22,21 @@ function focusNoSelection(input) {
 
 function updateCharsRemaining(e) {
     var statusNodes = $("#id_status");
-    var n = new String(140 - statusNodes[0].value.length);
+    var val = statusNodes.val();
+    var n = 140 - val.length;
+
     var noteNodes = $("#chars_remaining");
     if (noteNodes.length === 0) {
         statusNodes.after('<div class="note">Characters remaining: <span id="chars_remaining">' + n + '</span></div>');
+        var noteNodes = $("#chars_remaining");
     }
     else {
-        noteNodes.html(n);
+        noteNodes.text(n);
     }
+
+    if (n > 0) noteNodes.css("color", "#777");
+    else if (n < 0) noteNodes.css("color", "red");
+    else noteNodes.css("color", "green");
 }
 
 function parseQs(qs) {
@@ -296,7 +303,7 @@ function enhanceLinks(context) {
 $(document).ready(function() {
     var statusNodes = $("#id_status");
     if (statusNodes.length) {
-        statusNodes.keypress(updateCharsRemaining);
+        statusNodes.keyup(updateCharsRemaining);
         updateCharsRemaining();
         focusNoSelection(statusNodes[0]);
     }

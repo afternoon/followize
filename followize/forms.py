@@ -1,6 +1,6 @@
 from afternoon.django.forms import AsDivForm
-from django.forms import BooleanField, CharField, IntegerField, PasswordInput, \
-        TextInput, HiddenInput
+from django.forms import CharField, IntegerField, TextInput, HiddenInput, \
+        PasswordInput
 
 
 class LoginForm(AsDivForm):
