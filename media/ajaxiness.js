@@ -3,6 +3,7 @@ var MONTH_SHORT_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
 
 var SIMPLE_EMAIL_RE = /^\S+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+$/;
 var AT_REPLIES_RE = /@(\w+)/g;
+var STOCKTWITS_RE = /\$([A-Z]+)/g;
 var HASHTAGS_RE = /#(\w*[A-Za-z_]\w+)/g;
 var LONELY_AMP_RE = /&([^#a-zA-Z0-9])/g;
 
@@ -139,6 +140,11 @@ function atReplies(text) {
     return text.replace(AT_REPLIES_RE, replace_func);
 }
 
+function stocktwits(text) {
+    var replace_text = "#<a href=\"http://www.stocktwits.com/t/$1/\">$1</a>"
+    return text.replace(STOCKTWITS_RE, replace_text);
+}
+
 function hashtags(text) {
     var replace_text = "#<a href=\"http://hashtags.org/tag/$1/\">$1</a>"
     return text.replace(HASHTAGS_RE, replace_text);
@@ -149,7 +155,7 @@ function escapeLonelyAmps(text) {
 }
 
 function addLinks(text) {
-    return urlize(atReplies(hashtags(escapeLonelyAmps(text))));
+    return urlize(atReplies(stocktwits(hashtags(escapeLonelyAmps(text)))));
 }
 
 function getRowUserClass(row) {
