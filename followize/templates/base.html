@@ -23,8 +23,8 @@
 
   <body>
     <div class="page">
-      <h1 id="header">
-        <a href="/home/" title="Home">&#x272d; {% trans "Followize" %}</a>
+      <div class="header">
+        <h1><a href="/home/" title="Home">&#x272d; {% trans "Followize" %}</a></h1>
 
         {% if user %}
           <span class="userinfo">
@@ -37,7 +37,7 @@
             <a href="/post/" id="post">&#x270e; Post</a>
           </div>
         {% endif %}
-      </h1>
+      </div>
 
       {% block body %}{% endblock %}
 

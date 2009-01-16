@@ -26,8 +26,10 @@ dt { font-weight:bold; margin-top:0.7em; }
 /* layout */
 
 .page { margin:20px 40px; }
-h1 { font-size:small; padding-bottom:0.5em; border-bottom:2px solid #eee;
-    position:relative; }
+.header { font-size:small; padding-bottom:0.5em; border-bottom:2px solid
+    #eee; margin-bottom:0.5em; position:relative; }
+.header h1 { display:inline; margin:0; }
+
 
 .userinfo { font-size:x-small; font-weight:normal; color:#777; }
 .userinfo a { font-weight:bold; }
@@ -56,6 +58,7 @@ label.choice { float:none; width:auto; }
 input, textarea, select { font-size:1em; }
 .form-submit { margin-top:0.5em; margin-bottom:0.5em; }
 .form-line-choice { margin-left:5.5em; }
+.form-hidden { display:none; }
 
 .form-line ul.errorlist { margin:3px 0 0 5.9em; padding:0; }
 .form-line ul.errorlist li { color:red; margin:0; padding:0;
@@ -97,6 +100,10 @@ td.send_dm { padding-right:0; }
 
 .original .status { padding-left:3em; }
 .loading { color:#777; }
+
+/* inline timeline */
+
+.old .status, .old .send_reply, .old .send_dm { border-top:1px solid #f6f6f6; }
 
 /* post */
 

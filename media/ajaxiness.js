@@ -114,6 +114,10 @@ function makeLink(text) {
     else return text;
 }
 
+function escapeHtml(html) {
+    return html.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&#39;");
+}
+
 function urlize(text) {
     return $.map(text.split(" "), makeLink).join(" ");
 }
@@ -136,11 +140,23 @@ function hashtags(text) {
 }
 
 function addLinks(text) {
-    return urlize(atReplies(hashtags(text)));
+    return urlize(atReplies(hashtags(escapeHtml(text))));
 }
 
-function makeNewRow(row, rowClass, objectName, sendReplyContent, sendDmContent) {
-    var newRow = $('<tr class="' + rowClass + '"></tr>');
+function getRowUserClass(row) {
+    // pull the user class from a row
+    if (row.length) var row = row[0];
+    var classes = row.className.split(" ");
+    for (var i = 0; i < classes.length; i++) {
+        if (classes[i].indexOf("user_") === 0) {
+            return classes[i];
+        }
+    }
+}
+
+function makeNewRow(row, rowClass, rowUserClass, objectName, sendReplyContent, sendDmContent) {
+    // make classes like "old user_afternoon old_user_afternoon"
+    var newRow = $('<tr class="' + rowClass + ' ' + rowUserClass + ' ' + rowClass + "_" + rowUserClass + '"></tr>');
     row.after(newRow);
 
     var newRowHtml = [
@@ -157,18 +173,22 @@ function makeNewRow(row, rowClass, objectName, sendReplyContent, sendDmContent) 
         '</td>'
     ];
     newRow.html(newRowHtml.join(""))
-
     return newRow;
 }
 
-function loadTweets(row, rowClass, url, objectName, sendReplyContent,
-        sendDmContent, callback) {
-    var newRow = makeNewRow(row, rowClass, objectName, sendReplyContent,
-            sendDmContent);
-    $.getJSON(url, function(data) { callback(newRow, data); });
-}
+function renderTweet(container, type, data) {
+    var userInfo = "";
+    if (type === "original") {
+        userInfo = [
+            '<span class="profile_image">',
+                '<a href="http://twitter.com/', data.user.screen_name, '" title="', data.user.name, ' &mdash; ', data.user.description, '">',
+                    '<img src="', data.user.profile_image_url, '" width="12" height="12" alt="">',
+                '</a>',
+            '</span> ',
+            '<span class="name"><a href="http://twitter.com/', data.user.screen_name, '" title="', data.user.name, ' &mdash; ', data.user.description, '">', data.user.screen_name, '</a></span> ',
+        ].join("");
+    }
 
-function renderTweet(container, data) {
     var in_reply_to = "";
     if (data.in_reply_to_status_id) {
         in_reply_to = [
@@ -182,41 +202,55 @@ function renderTweet(container, data) {
     }
 
     var html = [
-        '<span class="profile_image">',
-            '<a href="http://twitter.com/', data.user.screen_name, '" title="', data.user.name, ' &mdash; ', data.user.description, '">',
-                '<img src="', data.user.profile_image_url, '" width="12" height="12" alt="', data.user.screen_name, '\'s avatar">',
-            '</a>',
-        '</span> ',
-        '<span class="name"><a href="http://twitter.com/', data.user.screen_name, '" title="', data.user.name, ' &mdash; ', data.user.description, '">', data.user.screen_name, '</a></span> ',
+        userInfo,
         '<span class="text">', addLinks(data.text), '</span> ',
         '<span class="created_at">', timediff(data.created_at), '</span>',
         in_reply_to,
     ];
+
     container.html(html.join(""));
     enhanceLinks(container);
 }
 
-function renderResponse(row, data, objectName) {
-    var container = $(".status", row);
+function renderTweets(row, data, objectName) {
+    var rowUserClass = getRowUserClass(row);
     if (typeof data.error === "undefined") {
         if (typeof data.user === "undefined") {
             var nextRow = row;
-            for (var i = 0; i < data.length; i++) {
-                renderTweet(nextRow, data[i]);
-                nextRow = makeNewRow(container.parents("tr"), "old", "Loading "
-                        + objectName + "...", "&nbsp;", "&nbsp;");
+            for (var i = 1; i < data.length; i++) {
+                renderTweet($(".status", nextRow), "old", data[i]);
+                if (i < data.length - 1) {
+                    nextRow = makeNewRow(nextRow, "old", rowUserClass, objectName, "&nbsp;", "&nbsp;");
+                }
             }
         }
         else {
-            renderTweet(container, data);
+            renderTweet($(".status", row), "original", data);
         }
     }
     else {
-        container.html('<span class="error">Couldn\'t load ' + objectName + '.</span>');
+        $(".status", row).html('<span class="error">Couldn\'t load ' +
+                objectName + ' (' + data.error + ').</span>');
     }
 }
 
+function loadTweets(row, rowClass, url, objectName, sendReplyContent, sendDmContent) {
+    console.log(row, rowClass, url, objectName, sendReplyContent, sendDmContent);
+    var newRow = makeNewRow(row, rowClass, getRowUserClass(row), objectName, sendReplyContent, sendDmContent);
+    $.ajax({
+        type:       "GET",
+        url:        url,
+        success:    function(data) { renderTweets(newRow, data, objectName); },
+        error:      function (e, xhr, options, thrownError) {
+                        console.log({"e": e, "xhr": xhr, "options": options, "thrownError": thrownError});
+                        $(".status", newRow).html('<span class="error">Couldn\'t load ' + objectName + '.</span>');
+                    },
+        dataType:   "json"
+    });
+}
+
 function showOriginal(anchor) {
+    $(anchor).unbind("click").click(function() { return false; });
     var row = $(anchor).parents("tr");
     var urlBits = anchor.pathname.split("/");
     var screenName = urlBits[1];
@@ -227,16 +261,31 @@ function showOriginal(anchor) {
     var sendDmContent = '<a href="/post/?status=d%20' + screenName + '%20" title="Direct message ' + screenName + '">&#x2709;</a>';
 
     loadTweets(row, "original", url, objectName, sendReplyContent,
-            sendDmContent, renderResponse);
+            sendDmContent);
+}
+
+function findLastUserSiblingRow(row) {
+    var rowClass = getRowUserClass(row);
+    var siblings = $("#" + rowClass + ", .original_" + rowClass);
+    return $(siblings[siblings.length - 1]);
 }
 
 function showTimeline(anchor) {
-    var row = $(anchor).parents("tr").siblings(".user"); // TODO the last .original before a .user or the end of the table
+    var row = $(anchor).parents("tr");
+    $(".profile_image a, .name a", row).unbind("click").click(function() {
+            hideTimeline(this); return false; });
+    var siblingRow = findLastUserSiblingRow(row);
     var screenName = anchor.pathname.substring(1);
-    var url = "/json/timeline/" + screenName + "/";
+    var url = "/json/timeline/" + screenName + "/?count=11";
     var objectName = "timeline";
 
-    loadTweets(row, "old", url, objectName, "&nbsp;", "&nbsp;", renderResponse);
+    loadTweets(siblingRow, "old", url, objectName, "&nbsp;", "&nbsp;");
+}
+
+function hideTimeline(anchor) {
+    var row = $(anchor).parents("tr");
+    $(".old_" + getRowUserClass(row)).remove();
+    $(".profile_image a, .name a", row).click(function(e) { showTimeline(this); return false; });
 }
 
 function enhanceLinks(context) {
@@ -256,7 +305,7 @@ $(document).ready(function() {
     $("#post").click(function(e) { post(""); return false; });
 
     // not ready for prime time
-    //$(".name a").click(function(e) { showTimeline(this); return false; });
+    $(".profile_image a, .name a").click(function(e) { showTimeline(this); return false; });
 
     enhanceLinks();
 

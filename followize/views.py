@@ -194,4 +194,4 @@ def json_status(request, status_id):
 @return_json
 def json_timeline(request, username):
     tw = Twitter(request.session["username"], request.session["password"])
-    return tw.timeline(username, json=True)
+    return tw.timeline(username, count=request.GET.get("count", 20), json=True)
