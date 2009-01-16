@@ -257,8 +257,13 @@ function loadTweets(row, rowClass, url, objectName, sendReplyContent, sendDmCont
 }
 
 function showOriginal(anchor) {
-    $(anchor).unbind("click").click(function() { return false; });
     var row = $(anchor).parents("tr");
+    if (row[0].className.indexOf("user ") === 0) {
+        $(anchor).unbind("click").click(function() { hideOriginals(this); return false; });
+    }
+    else {
+        $(anchor).unbind("click").click(function() { return false; });
+    }
     var urlBits = anchor.pathname.split("/");
     var screenName = urlBits[1];
     var statusId = urlBits[3];
@@ -269,6 +274,12 @@ function showOriginal(anchor) {
 
     loadTweets(row, "original", url, objectName, sendReplyContent,
             sendDmContent);
+}
+
+function hideOriginals(anchor) {
+    var row = $(anchor).parents("tr");
+    $(".original_" + getRowUserClass(row)).remove();
+    $(anchor).unbind("click").click(function(e) { showOriginal(this); return false; });
 }
 
 function findLastUserSiblingRow(row) {
