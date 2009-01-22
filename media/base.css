@@ -30,7 +30,6 @@ dt { font-weight:bold; margin-top:0.7em; }
     #eee; margin-bottom:0.5em; position:relative; }
 .header h1 { display:inline; margin:0; }
 
-
 .userinfo { font-size:x-small; font-weight:normal; color:#777; }
 .userinfo a { font-weight:bold; }
 #post { position:absolute; right:0; top:0; }
@@ -72,7 +71,7 @@ input, textarea, select { font-size:1em; }
 /* home */
 
 .following { padding:0; margin:0; border:0; }
-.following td { padding:3px; }
+.following td { padding:5px; }
 .user td { border-top:1px solid #eee; }
 .first td { border-top:none; }
 .me { background-color:#fffacd; }
@@ -109,6 +108,7 @@ td.send_dm { padding-right:0; }
 
 /* inline replies */
 
+.original td { padding:3px; }
 .original .status { padding-left:3em; }
 .loading { color:#777; }
 
