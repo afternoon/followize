@@ -22,5 +22,5 @@ def return_json(f):
             response = f(request, *args, **kwargs)
         except Exception, e:
             response = """{"error": "%s"}""" % e.message
-        return HttpResponse(response, mimetype=u"application/json")
+        return HttpResponse(response, content_type=u"application/json")
     return f_
