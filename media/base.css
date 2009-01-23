@@ -50,7 +50,7 @@ dt { font-weight:bold; margin-top:0.7em; }
 .form-line, .form-line-choice { margin:0 0 0.3em; clear:both; }
 .form-line-choice { margin-top:0.3em; }
 .form-field { margin-top:1em; }
-label { float:left; width:5em; margin-right:0.7em; padding-top:0.15em; }
+label { float:left; width:5em; margin-right:0.7em; padding-top:0.5em; }
 label.choice { float:none; width:auto; }
 .reqicon { color:red; }
 .form-note { color:gray; font-size:0.85em; }
