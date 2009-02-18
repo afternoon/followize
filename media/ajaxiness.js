@@ -169,7 +169,7 @@ function getRowUserClass(row) {
     }
 }
 
-function makeNewRow(row, rowClass, rowUserClass, objectName, sendReplyContent, sendDmContent) {
+function makeNewRow(row, rowClass, rowUserClass, objectName) {
     // make classes like "old user_afternoon old_user_afternoon"
     var newRow = $('<tr class="' + rowClass + ' ' + rowUserClass + ' ' + rowClass + "_" + rowUserClass + '"></tr>');
     row.after(newRow);
@@ -180,15 +180,17 @@ function makeNewRow(row, rowClass, rowUserClass, objectName, sendReplyContent, s
         '<td class="status">',
             '<span class="loading">Loading ', objectName, '...</span>',
         '</td>',
-        '<td class="send_reply">',
-            sendReplyContent,
-        '</td>',
-        '<td class="send_dm">',
-            sendDmContent,
-        '</td>'
+        '<td class="send_reply"></td>',
+        '<td class="send_retweet"></td>',
+        '<td class="send_dm"></td>'
     ];
     newRow.html(newRowHtml.join(""))
     return newRow;
+}
+
+function truncate(text, length) {
+    if (text.length <= length) return text;
+    else return text.substring(0, length - 3) + "...";
 }
 
 function renderTweet(row, type, data, sendDm) {
@@ -229,12 +231,18 @@ function renderTweet(row, type, data, sendDm) {
     statusDatum.html(html.join(""));
     enhanceLinks(statusDatum);
 
-    $(".send_reply", row).html('<a href="/post/?status=%40' + data.user.screen_name +
+    // add tweet actions
+    $(".send_reply", row).html('<a href="/post/?status=@' + data.user.screen_name +
             '%20&in_reply_to=' + data.id + '" title="Reply to ' + data.user.screen_name +
-            '">&#x21ba;</a>');
+            '">@</a>');
+    var retweet = escape(truncate('RT @' + data.user.screen_name + ': ' +
+                data.text, 140));
+    $(".send_retweet", row).html('<a href="/post/?status=' + retweet +
+            '&in_reply_to=' + data.id + '" title="Reply">&#x267a;</a>');
     if (sendDm) {
-        $(".send_dm", row).html('<a href="/post/?status=d%20' + data.user.screen_name +
-                '%20" title="Direct message ' + data.user.screen_name + '">&#x2709;</a>');
+        $(".send_dm", row).html('<a href="/post/?status=d%20' +
+                data.user.screen_name + '%20" title="Direct message ' +
+                data.user.screen_name + '">&#x2709;</a>');
     }
 }
 
@@ -327,7 +335,7 @@ function hideTimeline(anchor) {
 
 function enhanceLinks(context) {
     $(".reply a", context).click(function(e) { showOriginal(this); return false; });
-    $(".send_reply a, .send_dm a", context).click(function(e) { send(this); return false; });
+    $(".send_reply a, .send_retweet a, .send_dm a", context).click(function(e) { send(this); return false; });
 }
 
 $(document).ready(function() {

@@ -81,10 +81,13 @@ input, textarea, select { font-size:1em; }
 .reply_to_me a:hover { background-color:#ddd; }
 .reply_to_me a:active { background-color:#666; }
 .me .status, .reply_to_me .status { font-weight:bold; }
-td.profile_image { padding-left:0; }
+.profile_image { padding-left:0; }
 .name { font-weight:bold; }
 .created_at, .source, .reply { font-size:x-small; color:#777; }
-td.send_dm { padding-right:0; }
+.send_dm { padding-right:0; }
+
+.send_reply, .send_retweet, .send_dm { font-size:x-small;
+    padding-top:0.7em !important; }
 
 /* pagination */
 

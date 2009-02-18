@@ -20,7 +20,7 @@ log = getLogger(__name__)
 def verify_credentials(tw):
     data = tw.verify_credentials()
     data["password"] = tw.password
-    data = link_titles(tw, reply_to_me(tw, add_reply_data(tw, data)))
+    data = add_retweet(tw, reply_to_me(tw, add_reply_data(tw, data)))
     memcache.set("%s_info" % (tw.username), data,
             settings.FOLLOWIZE_CACHE_TIMEOUT_USER_INFO)
     return data
@@ -36,7 +36,7 @@ def user(tw, username=None, ignore_cache=False):
     if not data:
         data = tw.user(username)
         data["password"] = tw.password
-        data = link_titles(tw, reply_to_me(tw, add_reply_data(tw, data)))
+        data = add_retweet(tw, reply_to_me(tw, add_reply_data(tw, data)))
         memcache.set("%s_info" % (tw.username), data,
                 settings.FOLLOWIZE_CACHE_TIMEOUT_USER_INFO)
     return data
@@ -77,10 +77,24 @@ def reply_to_me(tw, f):
     return f
 
 
+def truncate(text, length):
+    if len(text) <= length:
+        return text
+    else:
+        return text[:length - 3] + u"..."
+
+
+def add_retweet(tw, f):
+    if "status" in f:
+        f["status"]["retweet"] = truncate(u"RT @%s: %s" % (f["screen_name"],
+            f["status"]["text"]), 140)
+    return f
+
+
 def following_page(tw, page=1):
     data = memcache.get("%s_following_page_%s" % (tw.username, page))
     if not data:
-        data = [reply_to_me(tw, add_reply_data(tw, f)) for f in
+        data = [add_retweet(tw, reply_to_me(tw, add_reply_data(tw, f))) for f in
                 tw.following(page)]
         timeout = settings.FOLLOWIZE_CACHE_TIMEOUT_UPDATES + \
                 randint(0, settings.FOLLOWIZE_CACHE_TIMEOUT_MAX_DELTA)

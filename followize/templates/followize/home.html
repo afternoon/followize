@@ -49,7 +49,11 @@
         </td>
 
         <td class="send_reply">
-          <a href="/post/?status=%40{{ f.screen_name }}%20&amp;in_reply_to={{ f.status.id }}" title="{% blocktrans with f.screen_name as f_screen_name %}Reply to {{ f_screen_name }}{% endblocktrans %}">&#x21ba;</a>
+          <a href="/post/?status=@{{ f.screen_name }}%20&amp;in_reply_to={{ f.status.id }}" title="{% blocktrans with f.screen_name as f_screen_name %}Reply to {{ f_screen_name }}{% endblocktrans %}">@</a>
+        </td>
+
+        <td class="send_retweet">
+          <a href="/post/?status={{ f.status.retweet|urlencode }}&amp;in_reply_to={{ f.status.id }}" title="{% blocktrans with f.screen_name as f_screen_name %}Retweet{% endblocktrans %}">&#x267a;</a>
         </td>
 
         <td class="send_dm">
