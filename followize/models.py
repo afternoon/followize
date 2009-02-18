@@ -125,6 +125,8 @@ def following(tw):
         
 
 def update(tw, status, in_reply_to):
+    if u"@" not in status:
+        in_reply_to = None
     tw.update(status, in_reply_to)
     u = user(tw, ignore_cache=True)
 
