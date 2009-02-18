@@ -8,8 +8,6 @@ from google.appengine.api.urlfetch import fetch
 from django.conf import settings
 from django.utils.translation import ugettext as _
 
-from BeautifulSoup import BeautifulSoup
-
 from afternoon.django.templatetags import AT_REPLIES_RE
 
 from twitter import AuthenticationException, num_pages, parse_time, \
@@ -79,52 +77,11 @@ def reply_to_me(tw, f):
     return f
 
 
-def page_title(url):
-    title = memcache.get("%s_title" % url)
-    if not title:
-        title = url
-        try:
-            response, secs = time_call(fetch, url, allow_truncated=True)
-        except Exception, e:
-            log.info(u"Exception %s, %s" % (type(e), e))
-            if str(e) == u"timed out":
-                raise TimeoutException(_(u"Request to Twitter timed out"))
-            else:
-                raise e
-        log.info("fetch(\"%s\") took %s secs" % (url, secs))
-
-        if response.status_code == 200 and \
-                response.headers["Content-Type"] == "text/html":
-            try:
-                bs = BeautifulSoup(unicode(response.content[:2048]))
-                if bs.title:
-                    title = "".join(bs.title.contents)
-            except HTMLParseError:
-                pass
-        memcache.set("%s_title" % url, title,
-                settings.FOLLOWIZE_CACHE_TIMEOUT_TITLES)
-    return title
-
-
-def link_up(t):
-    if t.lower().startswith(("http://", "https://")):
-        return """<a href="%s">%s</a>""" % (t, page_title(t))
-    else:
-        return t
-
-
-def link_titles(tw, f):
-    if settings.FOLLOWIZE_ADD_LINK_TITLES and "status" in f:
-        tokens = f["status"]["text"].split()
-        f["status"]["text"] = u" ".join([link_up(t) for t in tokens])
-    return f
-
-
 def following_page(tw, page=1):
     data = memcache.get("%s_following_page_%s" % (tw.username, page))
     if not data:
-        data = [link_titles(tw, reply_to_me(tw, add_reply_data(tw, f)))
-                for f in tw.following(page)]
+        data = [reply_to_me(tw, add_reply_data(tw, f)) for f in
+                tw.following(page)]
         timeout = settings.FOLLOWIZE_CACHE_TIMEOUT_UPDATES + \
                 randint(0, settings.FOLLOWIZE_CACHE_TIMEOUT_MAX_DELTA)
         memcache.set("%s_following_page_%s" % (tw.username, page), data,
