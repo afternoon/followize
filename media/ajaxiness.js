@@ -146,7 +146,7 @@ function stocktwits(text) {
 }
 
 function hashtags(text) {
-    var replace_text = "#<a href=\"http://hashtags.org/tag/$1/\">$1</a>";
+    var replace_text = "#<a href=\"http://search.twitter.com/search?q=%23$1\">$1</a>";
     return text.replace(HASHTAGS_RE, replace_text);
 }
 
