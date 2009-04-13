@@ -1,19 +1,52 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block title %}{% trans "Hello!" %}{% endblock %}
+{% block title %}{% trans "A powerful, streamlined interface for Twitter" %}{% endblock %}
 
 {% block body %}
-  <h2>{% trans "Read Twitter posts organised as user feeds." %}</h2>
+  <div class="splash">
+    <h2>
+      {% trans "Cut through the noise, follow the conversation" %}
+    </h2>
 
-  <p class="form-title">{% trans "Log in with your Twitter account." %}</p>
+    <p class="byline">
+      {% trans "A powerful, streamlined interface for Twitter" %}
+    </p>
 
-  <form action="/login/" method="post">
-    {{ form.as_div }}
-    <div class="form-submit">
-      <input type="submit" value="{% trans "Log in" %}">
+    <div class="features">
+      <div class="feature" id="feature-read">
+        <a class="lightbox" href="/media/feature_read.png" title="{% trans "Read tweets organised by person" %}" rel="features">
+          <img src="/media/feature_read_sm.png" width="260" height="210" alt="">
+        </a>
+        <p>{% trans "Read tweets organised by person" %}</p>
+      </div>
+      <div class="feature" id="feature-load">
+        <a class="lightbox" href="/media/feature_load.png" title="{% trans "Load timelines and tweets people are replying to" %}" rel="features">
+          <img src="/media/feature_load_sm.png" width="260" height="210" alt="">
+        </a>
+        <p>{% trans "Load timelines and tweets people are replying to" %}</p>
+      </div>
+      <div class="feature" id="feature-post">
+        <a class="lightbox" href="/media/feature_post.png" title="{% trans "Post, reply and retweet in a snap" %}" rel="features">
+          <img src="/media/feature_post_sm.png" width="260" height="210" alt="">
+        </a>
+        <p>{% trans "Post, reply and retweet in a snap" %}</p>
+      </div>
+      <div class="cl"></div>
     </div>
-  </form>
 
-  <p class="note">{% trans "We only use your Twitter details to do things you request. We remove your details from our system when you log out." %}</p>
+    <p class="important-instruction">{% trans "Start using Followize right now:" %}</p>
+
+    <p class="auth-wrap">
+      <a class="auth" href="/auth/">&#x2713; {% trans "Authenticate with Twitter" %}</a>
+    </p>
+
+    <p class="auth-note">
+      {% blocktrans %}
+        Authentication does not require your Twitter password. You can revoke 
+        authentication in your <a 
+          href="http://twitter.com/account/connections">Twitter settings</a>.
+      {% endblocktrans %}
+    </p>
+  </div>
 {% endblock %}

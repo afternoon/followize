@@ -4,13 +4,15 @@
 
 <html lang="en">
   <head>
-    <title>{% block title %}{% endblock %} &mdash; {% trans "Followize" %}</title>
+    <title>{% trans "Followize" %} &mdash; {% block title %}{% endblock %}</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
     <link rel="stylesheet" type="text/css" href="/media/base.css">
+    <link rel="stylesheet" type="text/css" href="/media/lightbox/css/lightbox.css">
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
 
     <script type="text/javascript" src="/media/jquery-1.2.6.min.js"></script>
+    <script type="text/javascript" src="/media/jquery.lightbox.js"></script>
     <script type="text/javascript" src="/media/ajaxiness.js"></script>
     {% if user %}
       <script type="text/javascript">
@@ -32,11 +34,15 @@
             ({% blocktrans with user.friends_count as user_friends_count %}following {{ user_friends_count }}{% endblocktrans %})
             | <a href="/logout/">{% trans "log out" %}</a>
           </span>
-
-          <div class="send_post">
-            <a href="/post/" id="post">&#x270e; Post</a>
-          </div>
         {% endif %}
+
+        <div class="right-nav">
+          {% if user %}
+            <a href="/post/" id="post">&#x270e; {% trans "Post" %}</a>
+          {% else %}
+            <a href="/auth/" id="auth">&#x2713; {% trans "Authenticate with Twitter" %}</a>
+          {% endif %}
+        </div>
       </div>
 
       {% block body %}{% endblock %}
