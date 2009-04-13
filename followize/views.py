@@ -11,10 +11,11 @@ from django.shortcuts import render_to_response
 from django.utils.simplejson import dumps
 from django.utils.translation import ugettext as _
 
-from forms import LoginForm, PostForm
-from decorators import return_json, username_required
-from models import following, is_follower, session_user, update, user, \
-        verify_credentials
+from oauth import OAuthToken
+
+from decorators import return_json, auth_required
+from forms import PostForm
+from models import following, is_follower, session_user, update
 from twitter import AuthenticationException, num_pages, TimeoutException, \
         Twitter, TwitterError
 
@@ -32,57 +33,45 @@ def fail(request, message):
     return render_to_response(u"500.html", ctx)
 
 
-def index(request, form=None):
+def index(request):
     """Show home page with simple blurb and log in form, like Facebook."""
-    # redirect to home if we have username/password
-    if u"username" in request.session:
+    # redirect to home if we have authenticated user
+    if u"access_token" in request.session:
         return HttpResponseRedirect(reverse("home"))
-
-    # create an empty form if required
-    if not form:
-        if request.method == u"GET":
-            form = LoginForm()
-        else:
-            form = LoginForm(request.POST)
 
     # display blurb page
-    return render_to_response(u"followize/index.html", {"form": form})
+    return render_to_response(u"followize/index.html")
 
 
-def login(request):
-    """Validate user's Twitter details and store them somewhere useful"""
-    if request.method == u"GET":
-        return HttpResponseRedirect(reverse("index"))
-
-    # basic input validation
-    form = LoginForm(request.POST)
-    if form.errors:
-        return index(request, form)
-
-    # check user creds with Twitter
-    tw = Twitter(form.cleaned_data["username"], form.cleaned_data["password"])
-    try:
-        user_info = verify_credentials(tw)
-    except AuthenticationException:
-        form.errors["password"] = [_(u"Wrong username and password"
-                u" combination.")]
-        return index(request, form)
-    except TwitterError, e:
-        return fail(request, _(u"Twitter error: %s") % e.message)
-    except Exception, e:
-        return fail(request, e.message)
-
-    if user_info and "error" not in user_info:
-        request.session["username"] = tw.username
-        request.session["password"] = tw.password
-        log.info(u"%s logged in, following %s" % (user_info["screen_name"],
-            user_info["friends_count"]))
-        return HttpResponseRedirect(reverse("home"))
-    else:
-        raise Exception(u"Unknown Twitter error")
+def auth(request):
+    """Kick off the OAuth process"""
+    tw = Twitter()
+    token = tw.new_request_token()
+    auth_url = tw.authorisation_url(token)
+    request.session["unauthed_token"] = token.to_string()   
+    return HttpResponseRedirect(auth_url)
 
 
-def logout(request):
+def auth_return(request):
+    """Get the access token back from Twitter and load user info"""
+    unauthed_token = request.session.get("unauthed_token", None)
+    if not unauthed_token:
+        return fail(request, _(u"No un-authorized token in session"))
+
+    token = OAuthToken.from_string(unauthed_token)   
+    if token.key != request.GET.get("oauth_token", "no-token"):
+        return fail(request, _(u"Something went wrong! Tokens do not match"))
+
+    tw = Twitter()
+    access_token = tw.exchange_request_token_for_access_token(token)
+    request.session["access_token"] = access_token.to_string()
+    request.session["screen_name"] = request.GET["screen_name"]
+
+    log.info(u"%s logged in" % request.GET["screen_name"])
+    return HttpResponseRedirect(reverse("home"))
+
+
+def auth_clear(request):
     request.session.clear()
     return HttpResponseRedirect(reverse("index"))
 
@@ -98,16 +87,16 @@ def home_p(request):
     return HttpResponse(u"OK")
     
 
-@username_required
+@auth_required
 def home(request):
     try:
         page = int(request.GET.get("page", 1))
     except ValueError:
         return fail(request, u"%s is not a valid page number" %
                 request.GET.get("page", u""))
-    tw = Twitter(request.session["username"], request.session["password"])
+    tw = Twitter(request.session["access_token"])
     try:
-        user_following = following(tw)
+        user_following = following(tw, request.session["screen_name"])
     except TwitterError, e:
         return fail(request, _(u"Twitter error: %s") % e.message)
     except TimeoutException, e:
@@ -134,13 +123,13 @@ def cant_dm(request, recipient):
             (recipient, reverse("post"), recipient)))
 
 
-@username_required
+@auth_required
 def post(request):
     """Post to Twitter"""
     form = PostForm(request.REQUEST)
     u = session_user(request.session)
 
-    tw = Twitter(request.session["username"], request.session["password"])
+    tw = Twitter(request.session["access_token"])
 
     if request.method == u"POST" and not form.errors:
         status = form.cleaned_data["status"]
@@ -152,7 +141,7 @@ def post(request):
                 return cant_dm(request, recipient)
 
         try:
-            update(tw, status, in_reply_to)
+            update(tw, request.session["screen_name"], status, in_reply_to)
         except:
             return fail(request, _(u"Couldn't post update to Twitter due to"
                     u" their lameness. Refresh to try again."))
@@ -179,24 +168,15 @@ def post(request):
     return render_to_response(u"followize/post.html", ctx)
 
 
-@username_required
-@return_json
-def json_following(request, page):
-    tw = Twitter(request.session["username"], request.session["password"])
-    user_following = following(tw)
-    paginator = Paginator(user_following, settings.FOLLOWIZE_PAGE_LENGTH)
-    return dumps(paginator.page(page))
-
-
-@username_required
+@auth_required
 @return_json
 def json_status(request, status_id):
-    tw = Twitter(request.session["username"], request.session["password"])
-    return tw.status(status_id, json=True)
+    tw = Twitter(request.session["access_token"])
+    return tw.status(status_id, raw=True)
 
 
-@username_required
+@auth_required
 @return_json
-def json_timeline(request, username):
-    tw = Twitter(request.session["username"], request.session["password"])
-    return tw.timeline(username, count=request.GET.get("count", 20), json=True)
+def json_timeline(request, screen_name):
+    tw = Twitter(request.session["access_token"])
+    return tw.timeline(screen_name, count=request.GET.get("count", 20), raw=True)

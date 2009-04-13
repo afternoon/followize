@@ -2,13 +2,13 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 
 
-def username_required(f):
+def auth_required(f):
     """The equivalent of being logged in is that the user's Twitter details are
     stored in the session. This decorator checks that.
     
     """
     def f_(request, *args, **kwargs):
-        if "username" not in request.session:
+        if "access_token" not in request.session:
             return HttpResponseRedirect(reverse("index"))
         else:
             return f(request, *args, **kwargs)

@@ -8,11 +8,11 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
     <link rel="stylesheet" type="text/css" href="/media/base.css">
-    <link rel="stylesheet" type="text/css" href="/media/lightbox/css/lightbox.css">
     <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
 
+    <meta name="description" content="Followize is a powerful, streamlined interface for Twitter. Cut through the noise, follow the conversation.">
+
     <script type="text/javascript" src="/media/jquery-1.2.6.min.js"></script>
-    <script type="text/javascript" src="/media/jquery.lightbox.js"></script>
     <script type="text/javascript" src="/media/ajaxiness.js"></script>
     {% if user %}
       <script type="text/javascript">
@@ -20,7 +20,7 @@
       </script>
     {% endif %}
 
-    <meta name="description" content="See the latest update from every person you follow.">
+    {% block extrahead %}{% endblock %}
   </head>
 
   <body>
@@ -32,7 +32,7 @@
           <span class="userinfo">
             | <a href="http://twitter.com/{{ user.screen_name }}">{{ user.screen_name }}</a>
             ({% blocktrans with user.friends_count as user_friends_count %}following {{ user_friends_count }}{% endblocktrans %})
-            | <a href="/logout/">{% trans "log out" %}</a>
+            | <a href="/auth/clear/">{% trans "log out" %}</a>
           </span>
         {% endif %}
 
@@ -40,7 +40,7 @@
           {% if user %}
             <a href="/post/" id="post">&#x270e; {% trans "Post" %}</a>
           {% else %}
-            <a href="/auth/" id="auth">&#x2713; {% trans "Authenticate with Twitter" %}</a>
+            <a href="/auth/" id="auth">&#x2713; {% trans "Sign in with Twitter" %}</a>
           {% endif %}
         </div>
       </div>

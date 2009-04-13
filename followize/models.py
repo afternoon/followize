@@ -17,46 +17,35 @@ from twitter import AuthenticationException, num_pages, parse_time, \
 log = getLogger(__name__)
 
 
-def verify_credentials(tw):
-    data = tw.verify_credentials()
-    data["password"] = tw.password
-    data = add_retweet(tw, reply_to_me(tw, add_reply_data(tw, data)))
-    memcache.set("%s_info" % (tw.username), data,
-            settings.FOLLOWIZE_CACHE_TIMEOUT_USER_INFO)
-    return data
-
-
-def user(tw, username=None, ignore_cache=False):
-    if not username:
-        username = tw.username
+def user(tw, screen_name, ignore_cache=False):
     if ignore_cache:
         data = None
     else:
-        data = memcache.get("%s_info" % (tw.username))
+        data = memcache.get("%s_info" % (screen_name))
     if not data:
-        data = tw.user(username)
-        data["password"] = tw.password
-        data = add_retweet(tw, reply_to_me(tw, add_reply_data(tw, data)))
-        memcache.set("%s_info" % (tw.username), data,
+        data = tw.user()
+        data = add_retweet(tw, reply_to_me(tw, screen_name, add_reply_data(tw,
+            data)))
+        memcache.set("%s_info" % (screen_name), data,
                 settings.FOLLOWIZE_CACHE_TIMEOUT_USER_INFO)
     return data
 
 
 def session_user(session):
-    username = session.get("username", None)
-    password = session.get("password", None)
-    if not username or not password:
+    screen_name = session.get("screen_name", None)
+    access_token = session.get("access_token", None)
+    if not access_token or not screen_name:
         return None
 
-    tw = Twitter(username, password)
-    return user(tw)
+    tw = Twitter(access_token)
+    return user(tw, screen_name)
 
 
-def timeline(tw, username):
-    timeline = memcache.get("%s_timeline" % username)
+def timeline(tw, screen_name):
+    timeline = memcache.get("%s_timeline" % screen_name)
     if not timeline:
-        timeline = tw.timeline(username)
-        memcache.set("%s_timeline" % username, timeline,
+        timeline = tw.timeline(screen_name)
+        memcache.set("%s_timeline" % screen_name, timeline,
                 settings.FOLLOWIZE_CACHE_TIMEOUT_TIMELINES)
     return timeline
 
@@ -70,10 +59,10 @@ def add_reply_data(tw, f):
     return f
 
 
-def reply_to_me(tw, f):
+def reply_to_me(tw, screen_name, f):
     if "status" in f and "in_reply_to_user" in f["status"]:
         reply_to_name = f["status"]["in_reply_to_user"]["screen_name"]
-        f["status"]["in_reply_to_me"] = reply_to_name == tw.username
+        f["status"]["in_reply_to_me"] = reply_to_name == screen_name
     return f
 
 
@@ -91,25 +80,25 @@ def add_retweet(tw, f):
     return f
 
 
-def following_page(tw, page=1):
-    data = memcache.get("%s_following_page_%s" % (tw.username, page))
+def following_page(tw, screen_name, page=1):
+    data = memcache.get("%s_following_page_%s" % (screen_name, page))
     if not data:
-        data = [add_retweet(tw, reply_to_me(tw, add_reply_data(tw, f))) for f in
-                tw.following(page)]
+        data = [add_retweet(tw, reply_to_me(tw, screen_name, add_reply_data(tw,
+            f))) for f in tw.following(page)]
         timeout = settings.FOLLOWIZE_CACHE_TIMEOUT_UPDATES + \
                 randint(0, settings.FOLLOWIZE_CACHE_TIMEOUT_MAX_DELTA)
-        memcache.set("%s_following_page_%s" % (tw.username, page), data,
+        memcache.set("%s_following_page_%s" % (screen_name, page), data,
                 timeout)
     return data
 
 
-def following(tw):
-    u = user(tw)
+def following(tw, screen_name):
+    u = user(tw, screen_name)
     data = [u]
     pages_to_load = min(settings.FOLLOWIZE_FOLLOWING_LIMIT,
             num_pages(u["friends_count"]))
     for i in range(1, pages_to_load + 1):
-        data += following_page(tw, i)
+        data += following_page(tw, screen_name, i)
 
     tzinfo = StaticTzInfo(u["utc_offset"])
 
@@ -124,13 +113,13 @@ def following(tw):
     return sorted(data, cmp=cmp_following, reverse=True)
         
 
-def update(tw, status, in_reply_to):
+def update(tw, screen_name, status, in_reply_to):
     if u"@" not in status:
         in_reply_to = None
     tw.update(status, in_reply_to)
-    u = user(tw, ignore_cache=True)
+    u = user(tw, screen_name, ignore_cache=True)
 
 
-def is_follower(tw, username):
-    other_user = user(tw, username=username)
+def is_follower(tw, screen_name):
+    other_user = user(tw, screen_name)
     return other_user["following"]

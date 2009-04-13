@@ -3,6 +3,23 @@
 
 {% block title %}{% trans "A powerful, streamlined interface for Twitter" %}{% endblock %}
 
+{% block extrahead %}
+  <script type="text/javascript" src="/media/jquery.lightbox.js"></script>
+  <link rel="stylesheet" type="text/css" href="/media/lightbox/css/lightbox.css">
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $(".lightbox").lightbox({
+      fileLoadingImage: "/media/lightbox/images/loading.gif",
+      fileBottomNavCloseImage: "/media/lightbox/images/closelabel.gif",
+      resizeSpeed: 0,
+      widthCurrent: 620,
+      heightCurrent: 505,
+          displayNavBar: false,
+      });
+    });
+  </script>
+{% endblock %}
+
 {% block body %}
   <div class="splash">
     <h2>
@@ -38,7 +55,7 @@
     <p class="important-instruction">{% trans "Start using Followize right now:" %}</p>
 
     <p class="auth-wrap">
-      <a class="auth" href="/auth/">&#x2713; {% trans "Authenticate with Twitter" %}</a>
+      <a class="auth" href="/auth/">&#x2713; {% trans "Sign in with Twitter" %}</a>
     </p>
 
     <p class="auth-note">

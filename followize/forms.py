@@ -1,11 +1,5 @@
 from afternoon.django.forms import AsDivForm
-from django.forms import CharField, IntegerField, TextInput, HiddenInput, \
-        PasswordInput
-
-
-class LoginForm(AsDivForm):
-    username = CharField(max_length=100)
-    password = CharField(max_length=100, widget=PasswordInput)
+from django.forms import CharField, IntegerField, TextInput, HiddenInput
 
 
 class PostForm(AsDivForm):

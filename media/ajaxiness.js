@@ -339,15 +339,6 @@ function enhanceLinks(context) {
 }
 
 $(document).ready(function() {
-    $(".lightbox").lightbox({
-		fileLoadingImage: "/media/lightbox/images/loading.gif",
-		fileBottomNavCloseImage: "/media/lightbox/images/closelabel.gif",
-		resizeSpeed: 0,
-		widthCurrent: 620,
-		heightCurrent: 505,
-        displayNavBar: false,
-    });
-
     var statusNodes = $("#id_status");
     if (statusNodes.length) {
         statusNodes.keyup(updateCharsRemaining);
