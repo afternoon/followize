@@ -100,7 +100,10 @@ def following(tw, screen_name):
     for i in range(1, pages_to_load + 1):
         data += following_page(tw, screen_name, i)
 
-    tzinfo = StaticTzInfo(u["utc_offset"] if u["utc_offset"] else 0)
+    offset = u.get("utc_offset", 0)
+    if not offset:
+        offset = 0
+    tzinfo = StaticTzInfo(offset)
 
     def cmp_following(x, y):
         if "status" not in x:
