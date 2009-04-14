@@ -3,6 +3,8 @@ from logging import getLogger
 from pstats import Stats
 from StringIO import StringIO
 
+from google.appengine.api.urlfetch_errors import DownloadError
+
 from django.conf import settings
 from django.core.paginator import Paginator
 from django.core.urlresolvers import reverse
@@ -97,10 +99,12 @@ def home(request):
     tw = Twitter(request.session["access_token"])
     try:
         user_following = following(tw, request.session["screen_name"])
+    except DownloadError:
+        return fail(request, _(u"Failed to load lovely tweets from Twitter. Sadness."))
     except TwitterError, e:
-        return fail(request, _(u"Twitter error: %s") % e.message)
+        return fail(request, e.message)
     except TimeoutException, e:
-        return fail(request, _(u"Couldn't load data about people you follow."
+        return fail(request, _(u"Failed to load lovely tweets from Twitter."
                 u" Twitter is too slow."))
 
     u = session_user(request.session)

@@ -157,8 +157,6 @@ class Twitter(object):
             response, secs = time_call(fetch, url, method=method)
             log.info("fetch(\"%s\") took %s secs" % (url, secs))
         except Exception, e:
-            log.info(u"Exception %s, %s" % (type(e), e))
-
             if str(e) == u"timed out":
                 raise TimeoutException(_(u"Request to Twitter timed out"))
             else:
