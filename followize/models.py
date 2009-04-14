@@ -23,7 +23,7 @@ def user(tw, screen_name, ignore_cache=False):
     else:
         data = memcache.get("%s_info" % (screen_name))
     if not data:
-        data = tw.user()
+        data = tw.user(screen_name)
         data = add_retweet(tw, reply_to_me(tw, screen_name, add_reply_data(tw,
             data)))
         memcache.set("%s_info" % (screen_name), data,
@@ -100,7 +100,7 @@ def following(tw, screen_name):
     for i in range(1, pages_to_load + 1):
         data += following_page(tw, screen_name, i)
 
-    tzinfo = StaticTzInfo(u["utc_offset"])
+    tzinfo = StaticTzInfo(u["utc_offset"] if u["utc_offset"] else 0)
 
     def cmp_following(x, y):
         if "status" not in x:

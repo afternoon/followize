@@ -203,9 +203,9 @@ class Twitter(object):
         resp = self.oauth_fetch(oauth_request, raw=True)
         return OAuthToken.from_string(resp) 
 
-    def user(self, raw=False):
+    def user(self, screen_name, raw=False):
         """Get info about user."""
-        return self.load(URL_VERIFY_CREDENTIALS, raw=raw)
+        return self.load(URL_USER % screen_name, raw=raw)
 
     def timeline(self, user_id, count=20, raw=False):
         return self.load(URL_TIMELINE % user_id, parameters={"count": count},
