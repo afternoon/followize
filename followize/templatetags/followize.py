@@ -14,4 +14,7 @@ register.filter(twitter_links)
 
 @register.filter
 def twitter_timediff(value, user):
-    return timediff(parse_time(value, StaticTzInfo(user["utc_offset"])))
+    offset = user.get("utc_offset", 0)
+    if not offset:
+        offset = 0
+    return timediff(parse_time(value, StaticTzInfo(offset)))
