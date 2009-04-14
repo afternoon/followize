@@ -172,7 +172,6 @@ class Twitter(object):
             return data
 
     def load(self, url, method="GET", parameters=None, raw=False):
-        log.info("Twitter load %s, parameters %s, raw %s" % (url, parameters, raw))
         oauth_request = OAuthRequest.from_consumer_and_token(self.consumer,
                 token=self.access_token, http_url=url, http_method=method,
                 parameters=parameters)
