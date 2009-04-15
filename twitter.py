@@ -162,11 +162,16 @@ class Twitter(object):
             else:
                 raise e
 
-        response_content = response.content
+        response_content = response.content # for debugging visibility
         if raw:
             return response_content
         else:
-            data = loads(unicode(response_content))
+            try:
+                data = loads(unicode(response_content))
+            except ValueError, e:
+                raise TwitterError(_("Tried to load tweets but just got rubbish"
+                        u" from Twitter. Confused."))
+                log.info(u"RESPONSE CONTENT: %s" % response_content)
             if "error" in data:
                 raise TwitterError(data["error"])
             return data
