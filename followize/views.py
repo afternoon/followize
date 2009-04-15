@@ -6,7 +6,7 @@ from StringIO import StringIO
 from google.appengine.api.urlfetch_errors import DownloadError
 
 from django.conf import settings
-from django.core.paginator import Paginator
+from django.core.paginator import EmptyPage, Paginator
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
@@ -109,7 +109,11 @@ def home(request):
 
     u = session_user(request.session)
     paginator = Paginator(user_following, settings.FOLLOWIZE_PAGE_LENGTH)
-    p = paginator.page(page)
+    try:
+        p = paginator.page(page)
+    except EmptyPage, e:
+        return fail(request, "Oops, you went too far.")
+
     ctx = {
         "user":         u,
         "following":    p.object_list,
