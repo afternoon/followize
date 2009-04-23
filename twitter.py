@@ -27,7 +27,8 @@ URL_UPDATE = "http://twitter.com/statuses/update.json"
 
 URL_OAUTH_REQUEST_TOKEN = "https://twitter.com/oauth/request_token"
 URL_OAUTH_ACCESS_TOKEN = "https://twitter.com/oauth/access_token"
-URL_OAUTH_AUTHORIZATION = "http://twitter.com/oauth/authorize"
+URL_OAUTH_AUTHORIZE = "http://twitter.com/oauth/authorize"
+URL_OAUTH_AUTHENTICATE = "http://twitter.com/oauth/authenticate"
 
 
 MONTHS = {
@@ -84,7 +85,7 @@ class StaticTzInfo(tzinfo):
     def localize(self, dt, is_dst=False):
         """Convert naive time to local time"""
         if dt.tzinfo is not None:
-            raise ValueError, "Not naive datetime (tzinfo is already set)"
+            raise ValueError("Timezone info already set")
         return dt.replace(tzinfo=self)
 
 
@@ -158,7 +159,8 @@ class Twitter(object):
             log.info("fetch(\"%s\") took %s secs" % (url, secs))
         except Exception, e:
             if str(e) == u"timed out":
-                raise TimeoutException(_(u"Request to Twitter timed out"))
+                raise TimeoutException(_(u"Twitter was too slow while we tried"
+                    u" get some data. Refresh to try again."))
             else:
                 raise e
 
@@ -170,7 +172,7 @@ class Twitter(object):
                 data = loads(unicode(response_content))
             except ValueError, e:
                 raise TwitterError(_("Tried to load tweets but just got rubbish"
-                        u" from Twitter. Confused."))
+                        u" from Twitter. Refresh to try again."))
                 log.info(u"RESPONSE CONTENT: %s" % response_content)
             if "error" in data:
                 raise TwitterError(data["error"])
@@ -193,7 +195,7 @@ class Twitter(object):
 
     def authorisation_url(self, token):
         oauth_request = OAuthRequest.from_consumer_and_token(self.consumer,
-                token=token, http_url=URL_OAUTH_AUTHORIZATION)
+                token=token, http_url=URL_OAUTH_AUTHENTICATE)
         oauth_request.sign_request(self.signature_method, self.consumer, token)
         return oauth_request.to_url()
 
@@ -203,7 +205,12 @@ class Twitter(object):
         oauth_request.sign_request(self.signature_method, self.consumer,
                 token)
         resp = self.oauth_fetch(oauth_request, raw=True)
-        return OAuthToken.from_string(resp) 
+        self.access_token = OAuthToken.from_string(resp) 
+        return self.access_token
+
+    def verify_credentials(self, raw=False):
+        """Get info about current user."""
+        return self.load(URL_VERIFY_CREDENTIALS, raw=raw)
 
     def user(self, screen_name, raw=False):
         """Get info about user."""

@@ -48,7 +48,11 @@ def index(request):
 def auth(request):
     """Kick off the OAuth process"""
     tw = Twitter()
-    token = tw.new_request_token()
+    try:
+        token = tw.new_request_token()
+    except DownloadError:
+        return fail(request, _(u"Twitter is not responding!"
+            u" Refresh to try again."))
     auth_url = tw.authorisation_url(token)
     request.session["unauthed_token"] = token.to_string()   
     return HttpResponseRedirect(auth_url)
@@ -56,20 +60,26 @@ def auth(request):
 
 def auth_return(request):
     """Get the access token back from Twitter and load user info"""
+    auth_broken_msg = _(u"Authentication with Twitter went wrong."
+            u" <a href=\"/\">Start over</a>.")
+
     unauthed_token = request.session.get("unauthed_token", None)
     if not unauthed_token:
-        return fail(request, _(u"No un-authorized token in session"))
+        return fail(request, auth_broken_msg)
 
     token = OAuthToken.from_string(unauthed_token)   
     if token.key != request.GET.get("oauth_token", "no-token"):
-        return fail(request, _(u"Something went wrong! Tokens do not match"))
+        return fail(request, auth_broken_msg)
 
     tw = Twitter()
     access_token = tw.exchange_request_token_for_access_token(token)
     request.session["access_token"] = access_token.to_string()
-    request.session["screen_name"] = request.GET["screen_name"]
 
-    log.info(u"%s logged in" % request.GET["screen_name"])
+    u = tw.verify_credentials()
+    log.info(u"%s logged in, following %s" % (u["screen_name"],
+            u["friends_count"]))
+    request.session["screen_name"] = u["screen_name"]
+
     return HttpResponseRedirect(reverse("home"))
 
 
@@ -94,25 +104,23 @@ def home(request):
     try:
         page = int(request.GET.get("page", 1))
     except ValueError:
-        return fail(request, u"%s is not a valid page number" %
+        return fail(request, u"%s doesn't work as a page number. Go back." %
                 request.GET.get("page", u""))
     tw = Twitter(request.session["access_token"])
     try:
         user_following = following(tw, request.session["screen_name"])
-    except DownloadError:
-        return fail(request, _(u"Failed to load lovely tweets from Twitter. Sadness."))
     except TwitterError, e:
         return fail(request, e.message)
-    except TimeoutException, e:
-        return fail(request, _(u"Failed to load lovely tweets from Twitter."
-                u" Twitter is too slow."))
+    except (DownloadError, TimeoutException):
+        return fail(request, _(u"Failed to get lovely tweets from Twitter."
+            u" Refresh to try again."))
 
     u = session_user(request.session)
     paginator = Paginator(user_following, settings.FOLLOWIZE_PAGE_LENGTH)
     try:
         p = paginator.page(page)
     except EmptyPage, e:
-        return fail(request, "Oops, you went too far.")
+        return fail(request, "Oops, you went too far. Go back.")
 
     ctx = {
         "user":         u,
@@ -127,7 +135,7 @@ def home(request):
 def cant_dm(request, recipient):
     return fail(request, _(u"You can't send direct messages to %s."
             u" They don't follow you.<br><br>"
-            u" You could <a href=\"%s?status=%%40%s+\">@reply</a> instead." %
+            u" <a href=\"%s?status=%%40%s+\">@mention them</a>." %
             (recipient, reverse("post"), recipient)))
 
 
@@ -151,8 +159,8 @@ def post(request):
         try:
             update(tw, request.session["screen_name"], status, in_reply_to)
         except:
-            return fail(request, _(u"Couldn't post update to Twitter due to"
-                    u" their lameness. Refresh to try again."))
+            return fail(request, _(u"Couldn't post to Twitter, they are lame."
+                u" Refresh to try again."))
 
         return HttpResponseRedirect(reverse("home"))
 
@@ -166,8 +174,8 @@ def post(request):
         form["status"].field.required = False
 
     if "in_reply_to" in form.errors:
-        return fail(request, _(u"%s is not a valid status ID to reply to." %
-            request.REQUEST["in_reply_to"]))
+        return fail(request, _(u"%s is not a valid status to reply to." %
+                request.REQUEST["in_reply_to"]))
 
     ctx = {
         "form":     form,
