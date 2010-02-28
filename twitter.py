@@ -27,7 +27,6 @@ URL_UPDATE = "http://twitter.com/statuses/update.json"
 
 URL_OAUTH_REQUEST_TOKEN = "https://twitter.com/oauth/request_token"
 URL_OAUTH_ACCESS_TOKEN = "https://twitter.com/oauth/access_token"
-URL_OAUTH_AUTHORIZE = "http://twitter.com/oauth/authorize"
 URL_OAUTH_AUTHENTICATE = "http://twitter.com/oauth/authenticate"
 
 
