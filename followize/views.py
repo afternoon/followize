@@ -15,14 +15,12 @@ from django.utils.translation import ugettext as _
 
 from oauth import OAuthToken
 
-from decorators import return_json, auth_required
-from forms import PostForm
-from models import following, is_follower, session_user, update
+from decorators import auth_required
 from twitter import AuthenticationException, num_pages, TimeoutException, \
         Twitter, TwitterError
 
 
-log = getLogger(__name__)
+log = getLogger()
 
 
 def fail(request, message):
@@ -101,99 +99,9 @@ def home_p(request):
 
 @auth_required
 def home(request):
-    """Show the latest update from each followed Twitterer using list_detail"""
-    try:
-        page = int(request.GET.get("page", 1))
-    except ValueError:
-        return fail(request, u"%s doesn't work as a page number. Go back." %
-                request.GET.get("page", u""))
-    tw = Twitter(request.session["access_token"])
-    try:
-        user_following = following(tw, request.session["screen_name"])
-    except TwitterError, e:
-        return fail(request, e.message)
-    except (DownloadError, TimeoutException):
-        return fail(request, _(u"Failed to get lovely tweets from Twitter."
-            u" Refresh to try again."))
-
-    u = session_user(request.session)
-    paginator = Paginator(user_following, settings.FOLLOWIZE_PAGE_LENGTH)
-    try:
-        p = paginator.page(page)
-    except EmptyPage, e:
-        return fail(request, "Oops, you went too far. Go back.")
-
-    ctx = {
-        "user":         u,
-        "following":    p.object_list,
-        "page_range":   [paginator.page(i) for i in paginator.page_range],
-        "current_page": p,
-        "form":         PostForm()
-    }
+    """Return a boiler plate HTML doc which bootstraps the JS front-end. The
+    OAuth access token is passed.
+    
+    """
+    ctx = {"access_token": request.session["access_token"]}
     return render_to_response(u"followize/home.html", ctx)
-
-
-def cant_dm(request, recipient):
-    return fail(request, _(u"You can't send direct messages to %s."
-            u" They don't follow you.<br><br>"
-            u" <a href=\"%s?status=%%40%s+\">@mention them</a>." %
-            (recipient, reverse("post"), recipient)))
-
-
-@auth_required
-def post(request):
-    """Post to Twitter"""
-    form = PostForm(request.REQUEST)
-    u = session_user(request.session)
-
-    tw = Twitter(request.session["access_token"])
-
-    if request.method == u"POST" and not form.errors:
-        status = form.cleaned_data["status"]
-        in_reply_to = form.cleaned_data.get("in_reply_to", u"")
-
-        if status.startswith(u"d "):
-            recipient = status.split()[1]
-            if not is_follower(tw, recipient):
-                return cant_dm(request, recipient)
-
-        try:
-            update(tw, request.session["screen_name"], status, in_reply_to)
-        except:
-            return fail(request, _(u"Couldn't post to Twitter, they are lame."
-                u" Refresh to try again."))
-
-        return HttpResponseRedirect(reverse("home"))
-
-    if request.method == u"GET":
-        status = request.GET.get("status", u"")
-        if status.startswith(u"d "):
-            recipient = status.split()[1]
-            if not is_follower(tw, recipient):
-                return cant_dm(request, recipient)
-
-        form["status"].field.required = False
-
-    if "in_reply_to" in form.errors:
-        return fail(request, _(u"%s is not a valid status to reply to." %
-                request.REQUEST["in_reply_to"]))
-
-    ctx = {
-        "form":     form,
-        "user":     u,
-    }
-    return render_to_response(u"followize/post.html", ctx)
-
-
-@auth_required
-@return_json
-def json_status(request, status_id):
-    tw = Twitter(request.session["access_token"])
-    return tw.status(status_id, raw=True)
-
-
-@auth_required
-@return_json
-def json_timeline(request, screen_name):
-    tw = Twitter(request.session["access_token"])
-    return tw.timeline(screen_name, count=request.GET.get("count", 20), raw=True)

@@ -14,7 +14,7 @@ from oauth import OAuthSignatureMethod_HMAC_SHA1, OAuthConsumer, OAuthRequest, \
         OAuthToken
 
 
-log = getLogger(__name__)
+log = getLogger()
 
 
 URL_VERIFY_CREDENTIALS = "http://twitter.com/account/verify_credentials.json"
