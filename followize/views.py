@@ -1,3 +1,4 @@
+from cgi import parse_qs
 from cProfile import Profile
 from logging import getLogger
 from pstats import Stats
@@ -71,7 +72,7 @@ def auth_return(request):
 
     tw = Twitter()
     access_token = tw.exchange_request_token_for_access_token(token)
-    request.session["access_token"] = access_token.to_string()
+    request.session["access_token"] = access_token
 
     u = tw.verify_credentials()
     log.info(u"%s logged in, following %s" % (u["screen_name"],

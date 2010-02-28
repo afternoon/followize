@@ -6,13 +6,50 @@ if (typeof console !== "undefined") { log = function (s) { console.log(s) }; }
 var twitter = {
     base: "http://twitter.com",
 
+    oauthToken: "",
+    oauthSecret: "",
+
+    init: function (params) {
+        twitter.oauthToken = params.oauthToken || "";
+        twitter.oauthSecret = params.oauthSecret || "";
+    },
+
+    // sign ajax request params
+    sign: function (params) {
+        var message = {
+            action:     params.url,
+            method:     "GET",
+            parameters: params.data
+        };
+
+        OAuth.setTimestampAndNonce(message);
+
+        var accessor = {
+            consumerSecret: twitter.consumerSecret,
+            tokenSecret:    twitter.tokenSecret
+        };
+        
+        OAuth.SignatureMethod.sign(message, accessor);
+
+        // update the Ajax request to add oauth_ parameters
+        params.data = OAuth.getParameterMap(message.parameters);
+        return params;
+    },
+
+    // request data from Twitter via JSONP and pass data to callback
+    load: function (params) {
+        params.dataType = "jsonp";
+        var signedParams = twitter.sign(params);
+        log({signedParams: signedParams});
+        return $.ajax(signedParams);
+    },
+
     // recursively get all following 100 at a time, fire callback for each 100
     following: function (handlePage, finished, cursor) {
         var c = cursor || -1;
         var fin = finished || function () { log("Loaded all following"); };
-        var url = twitter.base + "/statuses/friends.json?cursor=" + c + "&callback=?";
-        $.getJSON(url, function (data) {
-            log("Loaded some tweets");
+        var followingSuccess = function (data) {
+            log({loaded: data});
             handlePage(data.users);
             if (data.next_cursor !== 0) {
                 twitter.following(handlePage, fin, data.next_cursor);
@@ -20,6 +57,15 @@ var twitter = {
             else {
                 fin();
             }
+        };
+        var followingError = function (xhr, textStatus, errorThrown) {
+            log("Error: " + textStatus);
+        }
+        twitter.load({
+            url:        twitter.base + "/statuses/friends.json",
+            data:       {cursor: c},
+            success:    followingSuccess,
+            error:      followingError
         });
     },
 
