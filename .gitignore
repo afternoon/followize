@@ -7,7 +7,3 @@
 .DS_Store
 *.sw[op]
 *.py[co]
-afternoon
-common/
-BeautifulSoup.py
-media/jquery-1.2.6.min.js
