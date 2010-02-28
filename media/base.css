@@ -81,8 +81,7 @@ input, textarea, select { font-size:1em; }
 .auth-wrap { padding:14px 0; }
 a.auth { background-color:#06c; border:1px solid #039; color:white; padding:14px 22px;
     font-size:x-large; text-decoration:none;
-    -moz-border-radius:10px; -moz-border-radius:10px;
-    -webkit-border-radius:10px; -webkit-border-radius:10px;
+    -moz-border-radius:10px; -webkit-border-radius:10px; 
     text-shadow:2px 2px 0px #039; }
 a.auth:hover { text-decoration:underline; }
 .auth-note { color:#777; font-size:x-small; font-style:italic;
