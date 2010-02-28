@@ -89,7 +89,7 @@ def auth_clear(request):
 
 
 def home_p(request):
-    """Show the latest update from each followed Twitterer using list_detail"""
+    """Profiled version of home"""
     prof = Profile()
     prof = prof.runctx("home(request)", globals(), locals())
     stream = StringIO()
@@ -101,6 +101,7 @@ def home_p(request):
 
 @auth_required
 def home(request):
+    """Show the latest update from each followed Twitterer using list_detail"""
     try:
         page = int(request.GET.get("page", 1))
     except ValueError:
