@@ -17,3 +17,4 @@ handlers:
 
 - url: /.*
   script: common/appenginepatch/main.py
+  secure: always
