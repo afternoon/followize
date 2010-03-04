@@ -89,8 +89,8 @@ a.auth:hover { text-decoration:underline; }
 
 /* home */
 
-.following { padding:0; margin:0; border:0; }
-.following td { padding:5px; }
+#data { padding:0; margin:0; border:0; }
+#data td { padding:5px; }
 .user td { border-top:1px solid #eee; }
 .first td { border-top:none; }
 .me { background-color:#ffc; }

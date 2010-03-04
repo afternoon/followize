@@ -5,8 +5,19 @@
 
 {% block extrahead %}
   <script type="text/javascript">
-    twitter.oauthToken = "{{ oauth_token }}";
-    twitter.oauthConsumerKey = "{{ oauth_consumer_key }}";
+    // keep a handle on automatic refresh
+    var refreshTimer;
+
+    // set up twitter params (static vars)
+    twitter.init({
+      oauthToken:       "{{ oauth_token }}",
+      oauthConsumerKey: "{{ oauth_consumer_key }}"
+    });
+
+    // load some tweets!
+    $(document).ready(function () {
+        refreshTimer = showFollowingRepeatedly();
+    });
   </script>
 {% endblock %}
 
@@ -14,4 +25,6 @@
   <div id="content">
     <p>Loading...</p>
   </div>
+  <script type="text/javascript">
+  </script>
 {% endblock %}

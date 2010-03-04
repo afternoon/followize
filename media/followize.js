@@ -1,6 +1,6 @@
 // use console.log if available, silently drop log messages if not
-var log = function (s) { return; };
-if (typeof console !== "undefined") { log = function (s) { console.log(s) }; }
+var log = function(s) { return; };
+if (typeof console !== "undefined") { log = function(s) { console.log(s) }; }
 
 // twitter module - just a namespace
 var twitter = {
@@ -10,13 +10,13 @@ var twitter = {
     oauthTokenSecret: "",
     oauthConsumerKey: "",
 
-    init: function (params) {
+    init: function(params) {
         twitter.oauthToken = params.oauthToken || "";
         twitter.oauthConsumerKey = params.oauthConsumerKey || "";
     },
 
     // sign ajax request params
-    sign: function (params) {
+    sign: function(params) {
         var message = {
             action:     params.url,
             method:     "GET",
@@ -38,18 +38,17 @@ var twitter = {
     },
 
     // request data from Twitter via JSONP and pass data to callback
-    load: function (params) {
-        params.dataType = "jsonp";
+    load: function(params) {
+        params.url = params.url + "?callback=?";
         var signedParams = twitter.sign(params);
-        log({signedParams: signedParams});
-        return $.ajax(signedParams);
+        return $.jsonp(signedParams);
     },
 
     // recursively get all following 100 at a time, fire callback for each 100
-    following: function (handlePage, finished, cursor) {
+    following: function(handlePage, finished, cursor) {
         var c = cursor || -1;
-        var fin = finished || function () { log("Loaded all following"); };
-        var followingSuccess = function (data) {
+        var fin = finished || function() { log("Loaded all following"); };
+        var followingSuccess = function(data, textStatus) {
             log({loaded: data});
             handlePage(data.users);
             if (data.next_cursor !== 0) {
@@ -59,7 +58,7 @@ var twitter = {
                 fin();
             }
         };
-        var followingError = function (xhr, textStatus, errorThrown) {
+        var followingError = function(params, textStatus) {
             log("Error: " + textStatus);
         }
         twitter.load({
@@ -71,14 +70,14 @@ var twitter = {
     },
 
     // get tweets from everyone we're following (or the first 100 right now)
-    followingTweets: function (callback) {
-        twitter.following(function (data) {
+    followingTweets: function(callback) {
+        twitter.following(function(data) {
             callback($.map(data, twitter.tweetFromUser));
         });
     },
 
     // create a simple tweet record from a user record
-    tweetFromUser: function (user, i) {
+    tweetFromUser: function(user, i) {
         var stat = user["status"] || {text: "", created_at: new Date(0)};
         return {
             avatar: user.profile_image_url,
@@ -89,16 +88,16 @@ var twitter = {
     },
 
     // comparison function to sort and array of tweets latest first
-    compareTweetTimesDesc: function (a, b) {
+    compareTweetTimesDesc: function(a, b) {
         return new Date(b.created_at) - new Date(a.created_at);
     }
 };
 
 // maintain a cache of all following users and show a sorted listed of them
-var cacheAndShow = function () {
+var cacheAndShow = function() {
     var cache = {};
 
-    return function (tweets) {
+    return function(tweets) {
         // add latest page of tweets to the cache, overwriting any old tweets
         // from an existing user
         for (var i = 0; i < tweets.length; i++) {
@@ -116,7 +115,7 @@ var cacheAndShow = function () {
 }();
 
 function show(tweets) {
-    var template = "<table><tbody>{{# tweets }}<tr><td><img src=\"{{ avatar }}\" width=\"14\" height=\"14\"></td><td>{{ screen_name }}</td><td>{{ status }}</td><td>{{ created_at }}</td></tr>{{/ tweets }}</tbody></table>";
+    var template = '<table id=\"data\"><tbody>{{# tweets }}<tr id="user_{{ screen_name }}" class="user user_{{ screen_name }}"><td class="profile_image"><a href="http://twitter.com/{{ screen_name }}" title="{{ name }}&mdash; {{ description }}"><img src="{{ avatar }}" width="14" height="14" alt=""></a></td><td class="name"><a href="http://twitter.com/{{ screen_name }}" title="{{ name }}&mdash; {{ description }}">{{ screen_name }}</a></td><td class="status"><div class="tweet"><span class="text">{{ status }}</span><span class="created_at">{{ created_at }}</span><span class="source">from {{ source }}</span></div></td><td class="send_reply"><a href="/post/?status=@{{ screen_name }}%20&amp;in_reply_to={{ in_reply_to_status_id }}" title="Reply to {{ screen_name }}">@</a></td><td class="send_retweet"><a href="/post/?status=RT%20%40{{ screen_name }}%3A%20{{ text }}&amp;in_reply_to={{ in_reply_to_status_id }}" title="Retweet">&#x267a;</a></td><td class="send_dm"><a href="/post/?status=d%20{{ screen_name }}%20" title="Direct message {{ screen_name }}">&#x2709;</a></td></tr>{{/ tweets }}</tbody></table>';
     $("#content").html($.mustache(template, {tweets: tweets}));
 }
 
@@ -125,7 +124,3 @@ function showFollowingRepeatedly() {
     twitter.followingTweets(cacheAndShow);
     return setTimeout(showFollowingRepeatedly, 1000 * 60 * 5); // every 5 mins
 }
-
-$(document).ready(function () {
-    var timer = showFollowingRepeatedly();
-});
