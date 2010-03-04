@@ -8,7 +8,7 @@ def auth_required(f):
     
     """
     def f_(request, *args, **kwargs):
-        if "access_token" not in request.session:
+        if "oauth_token_str" not in request.session:
             return HttpResponseRedirect(reverse("index"))
         else:
             return f(request, *args, **kwargs)

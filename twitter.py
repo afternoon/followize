@@ -219,7 +219,7 @@ class Twitter(object):
         return self.load(URL_TIMELINE % user_id, parameters={"count": count},
                 raw=raw)
     
-    def following(self, page, raw=False):
+    def following(self, page=1, raw=False):
         return self.load(URL_FOLLOWING, parameters={"page": page}, raw=raw)
 
     def status(self, status_id, raw=False):

@@ -4,14 +4,15 @@ if (typeof console !== "undefined") { log = function (s) { console.log(s) }; }
 
 // twitter module - just a namespace
 var twitter = {
-    base: "http://twitter.com",
+    base: "https://twitter.com",
 
     oauthToken: "",
-    oauthSecret: "",
+    oauthTokenSecret: "",
+    oauthConsumerKey: "",
 
     init: function (params) {
         twitter.oauthToken = params.oauthToken || "";
-        twitter.oauthSecret = params.oauthSecret || "";
+        twitter.oauthConsumerKey = params.oauthConsumerKey || "";
     },
 
     // sign ajax request params
@@ -25,11 +26,11 @@ var twitter = {
         OAuth.setTimestampAndNonce(message);
 
         var accessor = {
-            consumerSecret: twitter.consumerSecret,
-            tokenSecret:    twitter.tokenSecret
+            token:          twitter.oauthToken,
+            consumerKey:    twitter.oauthConsumerKey
         };
         
-        OAuth.SignatureMethod.sign(message, accessor);
+        OAuth.completeRequest(message, accessor);
 
         // update the Ajax request to add oauth_ parameters
         params.data = OAuth.getParameterMap(message.parameters);

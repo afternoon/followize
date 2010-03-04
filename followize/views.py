@@ -1,4 +1,3 @@
-from cgi import parse_qs
 from cProfile import Profile
 from logging import getLogger
 from pstats import Stats
@@ -37,7 +36,7 @@ def fail(request, message):
 def index(request):
     """Show home page with simple blurb and log in form, like Facebook."""
     # redirect to home if we have authenticated user
-    if u"access_token" in request.session:
+    if u"oauth_token_str" in request.session:
         return HttpResponseRedirect(reverse("home"))
 
     # display blurb page
@@ -71,8 +70,8 @@ def auth_return(request):
         return fail(request, auth_broken_msg)
 
     tw = Twitter()
-    access_token = tw.exchange_request_token_for_access_token(token)
-    request.session["access_token"] = access_token
+    oauth_token_str = tw.exchange_request_token_for_access_token(token)
+    request.session["oauth_token_str"] = oauth_token_str.to_string()
 
     u = tw.verify_credentials()
     log.info(u"%s logged in, following %s" % (u["screen_name"],
@@ -104,5 +103,9 @@ def home(request):
     OAuth access token is passed.
     
     """
-    ctx = {"access_token": request.session["access_token"]}
+    oauth_token = OAuthToken.from_string(request.session["oauth_token_str"])
+    ctx = {
+        "oauth_token":          oauth_token.key,
+        "oauth_consumer_key":   settings.TWITTER_OAUTH_CONSUMER_KEY
+    }
     return render_to_response(u"followize/home.html", ctx)
