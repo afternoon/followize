@@ -21,7 +21,7 @@ fw.util = {
 
     makeLink: function(text) {
         if (text.indexOf("http://") === 0 || text.indexOf("https://") === 0) {
-            return "<a href=\"" + text + "\">" + text + "</a>";
+            return '<a href="' + text + '" target="_blank">' + text + "</a>";
         }
         else if (text.length > 4 && (text.indexOf("www.") === 0 ||
                 text.indexOf(".com") === text.length - 4 ||
