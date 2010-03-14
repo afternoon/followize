@@ -97,6 +97,7 @@ a.auth:hover { text-decoration:underline; }
 #data { padding:0; margin:0; border:0; }
 #data td { padding:5px; }
 .user td { border-top:1px solid #eee; }
+#data tr:first-child td { border:none; padding-top:2px; }
 .first td { border-top:none; }
 .me { background-color:#ffc; }
 .me a:hover { background-color:#eeb; }
