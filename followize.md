@@ -6,11 +6,31 @@ followize2
 
   * Posting, replying, sending DMs.
 
+  * "In reply to" conversations.
+
   * Redesign (with refresh button, big progress meter on first load, small meter
     on periodical reload).
 
   * Read mentions and DMs.
 
-  * Lists (subscriptions stored at Twitter and cached in globalStorage).
+  * Lists and searches (subscriptions stored at Twitter and cached in globalStorage).
 
   * Cache state in sessionStorage.
+
+Displaying timelines
+--------------------
+
+  * Timeline loaded via JSON.
+
+  * Stored in global state object:
+  
+        _state.afternoon.timeline = [tweet, tweet, tweet]
+
+  * Reloading preserves timeline.
+
+      * Timelines copied to new state.
+
+      * Timeline object refreshed if new state indicates newer post.
+
+  * If user is someone I follow, open their timeline and scroll to the right
+    part of the page.
