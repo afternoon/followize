@@ -21,17 +21,16 @@ var twitter = {
     // sign ajax request params
     sign: function(params) {
         var message = {
-                action:     params.url,
-                method:     "GET",
+                action: params.url,
+                method: "GET",
                 parameters: params.data
             },
             accessor = {
-                token:          twitter.oauthToken,
-                consumerKey:    twitter.oauthConsumerKey
+                token: twitter.oauthToken,
+                consumerKey: twitter.oauthConsumerKey
             };
 
         OAuth.setTimestampAndNonce(message);
-
         OAuth.completeRequest(message, accessor);
 
         // update the Ajax request to add oauth_ parameters
