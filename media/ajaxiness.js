@@ -1,6 +1,3 @@
-var MONTH_SHORT_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
-        "Aug", "Sep", "Oct", "Nov", "Dec"];
-
 function ajaxEnabled() {
     $(".userinfo").append(" | <span class=\"ok\">AJAX</span>");
 }
@@ -64,41 +61,6 @@ function hide_post() {
 function send(anchor) {
     qs = parseQs(anchor.search);
     post(unescape(qs.status), qs.in_reply_to);
-}
-
-function timediff(t) {
-    var d = new Date(t);
-    var delta = (new Date() - d) / 1000;
-    var days = Math.floor(delta / 86400);
-    var hours = Math.floor((delta % 86400) / 3600);
-    var mins = Math.floor((delta % 3600) / 60);
-    var secs = Math.floor(delta % 60);
-    
-    if (days >= 1) {
-        dateInTwitTz = new Date(d.getTime() - d.getTimezoneOffset() + timezoneOffset);
-        return [MONTH_SHORT_NAMES[d.getMonth()], " ", d.getDate(), ", ",
-               d.getHours(), ":", d.getMinutes()].join("");
-    }
-    else {
-        var amount = 0;
-        var unit_str = "";
-
-        if (hours > 0) {
-            amount = hours;
-            unit_str = "hour";
-        }
-        else if (mins > 0) {
-            amount = mins;
-            unit_str = "min";
-        }
-        else {
-            amount = secs;
-            unit_str = "sec";
-        }
-
-        if (amount != 1) unit_str += "s";
-        return [amount, unit_str, "ago"].join(" ")
-    }
 }
 
 function getRowUserClass(row) {

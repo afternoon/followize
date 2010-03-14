@@ -11,6 +11,10 @@ fw.util = {
     HASHTAGS_RE: /#(\w*[A-Za-z_]\w+)/g,
     LONELY_AMP_RE: /&([^#a-zA-Z0-9])/g,
 
+    TIMEZONE_OFFSET: 0,
+    MONTH_SHORT_NAMES: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
+            "Sep", "Oct", "Nov", "Dec"],
+
     log: function(s) {
         if (typeof console !== "undefined") { console.log(s); }
     },
@@ -65,9 +69,45 @@ fw.util = {
         return fw.util.urlize(fw.util.atReplies(fw.util.stocktwits(fw.util.hashtags(fw.util.escapeLonelyAmps(text)))));
     },
 
-    addLinksToUser: function(user) {
+    timediff: function (t) {
+        var d = new Date(t);
+        var delta = (new Date() - d) / 1000;
+        var days = Math.floor(delta / 86400);
+        var hours = Math.floor((delta % 86400) / 3600);
+        var mins = Math.floor((delta % 3600) / 60);
+        var secs = Math.floor(delta % 60);
+        
+        if (days >= 1) {
+            dateInTwitTz = new Date(d.getTime() - d.getTimezoneOffset() + fw.util.TIMEZONE_OFFSET);
+            return [fw.util.MONTH_SHORT_NAMES[d.getMonth()], " ", d.getDate(), ", ",
+                   d.getHours(), ":", d.getMinutes()].join("");
+        }
+        else {
+            var amount = 0;
+            var unit_str = "";
+
+            if (hours > 0) {
+                amount = hours;
+                unit_str = "hour";
+            }
+            else if (mins > 0) {
+                amount = mins;
+                unit_str = "min";
+            }
+            else {
+                amount = secs;
+                unit_str = "sec";
+            }
+
+            if (amount != 1) unit_str += "s";
+            return [amount, unit_str, "ago"].join(" ")
+        }
+    },
+
+    fixupUser: function(user) {
         if (user && user["status"]) {
             user["status"].html = fw.util.addLinks(user["status"].text);
+            user["status"].created_at_rel = fw.util.timediff(user["status"].created_at);
         }
         return user;
     }
