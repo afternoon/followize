@@ -5,8 +5,6 @@
 var fw = fw || {};
 
 // singleton class which encapsulates state
-// TODO use local DB for cache if available
-// TODO update cache in background with a web worker?
 fw.state = {
     _users: {},
     _sorted: [],
@@ -35,7 +33,7 @@ fw.state = {
     sorted: function() {
         return fw.state._sorted;
     }
-}
+};
 
 fw.view = {
     // how frequently should tweets be displayed (every 5 mins)
@@ -55,6 +53,7 @@ fw.view = {
 
     // show users in a table using mustache
     show: function(users) {
+        $(fw.view.TABLE_EXPR).remove();
         $(fw.view.CONTAINER_EXPR).html(fw.view.TABLE_HTML);
         var tbody = $("tbody", fw.view.TABLE_EXPR);
         $.map(users, function(user, i) { fw.view.appendUser(user, tbody); });
@@ -78,4 +77,4 @@ fw.view = {
         twitter.following(fw.view.cacheAndShow);
         return setTimeout(fw.view.showFollowingRepeatedly, fw.view.UPDATE_FREQ);
     }
-}
+};

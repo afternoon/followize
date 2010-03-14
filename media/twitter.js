@@ -21,18 +21,17 @@ var twitter = {
     // sign ajax request params
     sign: function(params) {
         var message = {
-            action:     params.url,
-            method:     "GET",
-            parameters: params.data
-        };
+                action:     params.url,
+                method:     "GET",
+                parameters: params.data
+            },
+            accessor = {
+                token:          twitter.oauthToken,
+                consumerKey:    twitter.oauthConsumerKey
+            };
 
         OAuth.setTimestampAndNonce(message);
 
-        var accessor = {
-            token:          twitter.oauthToken,
-            consumerKey:    twitter.oauthConsumerKey
-        };
-        
         OAuth.completeRequest(message, accessor);
 
         // update the Ajax request to add oauth_ parameters
@@ -49,20 +48,21 @@ var twitter = {
 
     // recursively get all following 100 at a time, fire callback for each 100
     following: function(handlePage, finished, cursor) {
-        var c = cursor || -1;
-        var fin = finished || function() { return; };
-        var followingSuccess = function(data, textStatus) {
-            handlePage(data.users);
-            if (data.next_cursor !== 0) {
-                twitter.following(handlePage, fin, data.next_cursor);
-            }
-            else {
-                fin();
-            }
-        };
-        var followingError = function(params, textStatus) {
-            log("Error: " + textStatus);
-        }
+        var c = cursor || -1,
+            fin = finished || function() { return; },
+            followingSuccess = function(data, textStatus) {
+                handlePage(data.users);
+                if (data.next_cursor !== 0) {
+                    twitter.following(handlePage, fin, data.next_cursor);
+                }
+                else {
+                    fin();
+                }
+            },
+            followingError = function(params, textStatus) {
+                log("Error: " + textStatus);
+            };
+
         twitter.load({
             url:        twitter.base + "/statuses/friends.json",
             data:       {cursor: c},
@@ -72,8 +72,13 @@ var twitter = {
     },
 
     // comparison function to sort and array of tweets latest first
-    compareTweetTimesDesc: function(a, b) {
-        var userTime = function(u) { return new Date(u["status"] && u["status"].created_at || u.created_at) };
-        return userTime(b) - userTime(a);
-    }
+    compareTweetTimesDesc: function() {
+        var userTime = function(u) {
+            return new Date(u["status"] && u["status"].created_at || u.created_at)
+        };
+
+        return function(a, b) {
+            return userTime(b) - userTime(a);
+        }
+    }()
 };

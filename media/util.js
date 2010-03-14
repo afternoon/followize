@@ -70,12 +70,14 @@ fw.util = {
     },
 
     timediff: function (t) {
-        var d = new Date(t);
-        var delta = (new Date() - d) / 1000;
-        var days = Math.floor(delta / 86400);
-        var hours = Math.floor((delta % 86400) / 3600);
-        var mins = Math.floor((delta % 3600) / 60);
-        var secs = Math.floor(delta % 60);
+        var d = new Date(t),
+            delta = (new Date() - d) / 1000,
+            days = Math.floor(delta / 86400),
+            hours = Math.floor((delta % 86400) / 3600),
+            mins = Math.floor((delta % 3600) / 60),
+            secs = Math.floor(delta % 60),
+            amount = 0,
+            unit_str = "";
         
         if (days >= 1) {
             dateInTwitTz = new Date(d.getTime() - d.getTimezoneOffset() + fw.util.TIMEZONE_OFFSET);
@@ -83,9 +85,6 @@ fw.util = {
                    d.getHours(), ":", d.getMinutes()].join("");
         }
         else {
-            var amount = 0;
-            var unit_str = "";
-
             if (hours > 0) {
                 amount = hours;
                 unit_str = "hour";
@@ -111,4 +110,4 @@ fw.util = {
         }
         return user;
     }
-}
+};
