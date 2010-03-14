@@ -7,12 +7,14 @@
 
 // twitter module - just a namespace
 var twitter = {
-    base: "https://twitter.com",
+    BASE: "https://api.twitter.com/1",
+
+    TIMELINE_LENGTH: 20,
 
     oauthToken: "",
     oauthTokenSecret: "",
     oauthConsumerKey: "",
-
+    
     init: function(params) {
         twitter.oauthToken = params.oauthToken || "";
         twitter.oauthConsumerKey = params.oauthConsumerKey || "";
@@ -63,10 +65,24 @@ var twitter = {
             };
 
         twitter.load({
-            url:        twitter.base + "/statuses/friends.json",
-            data:       {cursor: c},
-            success:    followingSuccess,
-            error:      followingError
+            url: twitter.BASE + "/statuses/friends.json",
+            data: {cursor: c},
+            success: followingSuccess,
+            error: followingError
+        });
+    },
+
+    // get timeline for a user
+    timeline: function(username, handleTimeline) {
+        var timelineError = function(params, textStatus) {
+            log("Error: " + textStatus);
+        };
+
+        twitter.load({
+            url: twitter.BASE + "/statuses/user_timeline/" + username + ".json",
+            data: {count: twitter.TIMELINE_LENGTH},
+            success: handleTimeline,
+            error: timelineError
         });
     },
 

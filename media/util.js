@@ -5,7 +5,7 @@
 var fw = fw || {};
 
 fw.util = {
-    SIMPLE_EMAIL_RE: /^\S+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+$/,
+    SIMPLE_EMAIL_RE: /^\S+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+$/g,
     AT_REPLIES_RE: /@(\w+)/g,
     STOCKTWITS_RE: /\$([A-Z]+)/g,
     HASHTAGS_RE: /#(\w*[A-Za-z_]\w+)/g,
