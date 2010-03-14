@@ -109,5 +109,16 @@ fw.util = {
             user["status"].created_at_rel = fw.util.timediff(user["status"].created_at);
         }
         return user;
+    },
+
+    usernameFromAnchor: function(anchor) {
+        var tr = $(anchor).parent().parent(),
+            classes = tr.attr("class").split(" ");
+        for (var i = 0; i < classes.length; i++) {
+            if (classes[i].slice(0, 5) === "user_") {
+                return classes[i].slice(5);
+            }
+        }
+        return null;
     }
 };

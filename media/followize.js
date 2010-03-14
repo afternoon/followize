@@ -22,7 +22,7 @@ fw.state = {
     sortUsers: function(cache) {
         var sorted = [];
         for (f in cache) {
-            if (f.substring(0, 4) === "user") {
+            if (f.slice(0, 4) === "user") {
                 sorted.push(cache[f]);
             }
         }
@@ -30,8 +30,20 @@ fw.state = {
         return sorted;
     },
 
+    // getter for sorted user list
     sorted: function() {
         return fw.state._sorted;
+    },
+
+    user: function(username) {
+        return fw.state._users["user" + username]
+    },
+
+    openUser: function(username) {
+        var user = fw.state.user(username);
+        fw.util.log("Opening user " + username);
+        user.open = true;
+        user.timeline = [{"html": "<strong>WOO</strong>", "text": "WOO", "created_at_rel": "just now", "source": "local"}];
     }
 };
 
@@ -44,11 +56,28 @@ fw.view = {
     TABLE_EXPR: "#data",
     TABLE_HTML: '<table id="data" cellpadding="0" cellspacing="0"><tbody></tbody></table>',
     USER_HTML: '<tr id="user_{{screen_name}}" class="user user_{{screen_name}}"><td class="profile_image"><a href="http://twitter.com/{{screen_name}}" title="{{name}} &mdash; {{description}}" target="_blank"><img src="{{profile_image_url}}" width="14" height="14" alt=""></a></td><td class="name"><a href="http://twitter.com/{{screen_name}}" title="{{name}} &mdash; {{description}}" target="_blank">{{screen_name}}</a></td><td class="status">{{>status}}</td><td class="send_reply"><a href="http://twitter.com/?status=@{{screen_name}}%20&amp;in_reply_to={{in_reply_to_status_id}}" title="Reply to {{screen_name}}">@</a></td><td class="send_retweet"><a href="http://twitter.com/?status=RT%20%40{{screen_name}}%3A%20{{text}}&amp;in_reply_to={{in_reply_to_status_id}}" title="Retweet">&#x267a;</a></td><td class="send_dm"><a href="http://twitter.com/?status=d%20{{screen_name}}%20" title="Direct message {{screen_name}}">&#x2709;</a></td></tr>',
+    TIMELINE_HTML: '<tr id="user_{{screen_name}}" class="user user_{{screen_name}}"><td class="profile_image"></td><td class="name"></td><td class="status">{{>status}}</td><td class="send_reply"><a href="http://twitter.com/?status=@{{screen_name}}%20&amp;in_reply_to={{in_reply_to_status_id}}" title="Reply to {{screen_name}}">@</a></td><td class="send_retweet"><a href="http://twitter.com/?status=RT%20%40{{screen_name}}%3A%20{{text}}&amp;in_reply_to={{in_reply_to_status_id}}" title="Retweet">&#x267a;</a></td><td class="send_dm"><a href="http://twitter.com/?status=d%20{{screen_name}}%20" title="Direct message {{screen_name}}">&#x2709;</a></td></tr>',
     STATUS_HTML: '<div class="tweet"><span class="text">{{{html}}}</span> <span class="created_at">{{created_at_rel}}</span> <span class="source">from {{{source}}}</span></div>',
+
+    // add rows for each line in the user's timeline
+    appendTimelineRow: function(user, status_, sibling) {
+        var userCopy = $.extend(true, {}, user);
+        userCopy["status"] = status_;
+        sibling.after($.mustache(fw.view.TIMELINE_HTML, userCopy, {"status": fw.view.STATUS_HTML}));
+    },
+
+    // append rows for a user's expanded timeline
+    appendTimeline: function(user, sibling) {
+        $.map(user.timeline, function(status_) { fw.view.appendTimelineRow(user, status_, sibling); });
+    },
 
     // append rendered HTML for a user to provided container node
     appendUser: function(user, container) {
         container.append($.mustache(fw.view.USER_HTML, user, {"status": fw.view.STATUS_HTML}));
+        
+        var open = user.open || false,
+            timeline = user.timeline || null;
+        if (timeline && open) { fw.view.appendTimeline(user); }
     },
 
     // show users in a table using mustache
@@ -57,6 +86,19 @@ fw.view = {
         $(fw.view.CONTAINER_EXPR).html(fw.view.TABLE_HTML);
         var tbody = $("tbody", fw.view.TABLE_EXPR);
         $.map(users, function(user, i) { fw.view.appendUser(user, tbody); });
+    },
+
+    // handle click on username or profile pic
+    userClick: function(e) {
+        var username = fw.util.usernameFromAnchor(this);
+        fw.state.openUser(username);
+        fw.view.appendTimeline(fw.state.user(username), $("tr.user_" + username));
+        return false;
+    },
+
+    // bind handlers for clicks to DOM nodes created by template expansion
+    bindEventHandlers: function() {
+        $("td.profile_image a, td.name a").click(fw.view.userClick);
     },
 
     // update cache and show it in one operation
@@ -69,6 +111,11 @@ fw.view = {
         fw.util.log("Displaying tweets");
         fw.view.show(fw.state.sorted());
 
+        // bind event handlers for link clicks etc
+        fw.util.log("Binding event handlers");
+        fw.view.bindEventHandlers()
+
+        // done
         fw.util.log("Finished updating");
     },
 

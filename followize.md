@@ -24,7 +24,13 @@ Displaying timelines
 
   * Stored in global state object:
   
-        _state.afternoon.timeline = [tweet, tweet, tweet]
+        _state[username].timeline = [tweet, tweet, tweet]
+
+  * Extend fw.view.appendUser:
+  
+        if (user.open === true) {
+            appendTimeline(user, container);
+        }
 
   * Reloading preserves timeline.
 
