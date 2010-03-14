@@ -87,6 +87,11 @@ a.auth:hover { text-decoration:underline; }
 .auth-note { color:#777; font-size:x-small; font-style:italic;
     margin:1.7em 0 3em 0; }
 
+/* loading */
+
+.loading { text-align:center; padding:49px 0 20px 0;
+    background:transparent url(loading.gif) no-repeat center 20px; }
+
 /* home */
 
 #data { padding:0; margin:0; border:0; }
