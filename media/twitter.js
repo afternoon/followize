@@ -5,10 +5,6 @@
  *  supports read access as JSONP is restricted to GET requests.
  */
 
-// use console.log if available, silently drop log messages if not
-var log = function(s) { return; };
-if (typeof console !== "undefined") { log = function(s) { console.log(s) }; }
-
 // twitter module - just a namespace
 var twitter = {
     base: "https://twitter.com",
@@ -54,9 +50,8 @@ var twitter = {
     // recursively get all following 100 at a time, fire callback for each 100
     following: function(handlePage, finished, cursor) {
         var c = cursor || -1;
-        var fin = finished || function() { log("Loaded all following"); };
+        var fin = finished || function() { return; };
         var followingSuccess = function(data, textStatus) {
-            log({loaded: data});
             handlePage(data.users);
             if (data.next_cursor !== 0) {
                 twitter.following(handlePage, fin, data.next_cursor);

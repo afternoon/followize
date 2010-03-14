@@ -1,0 +1,74 @@
+/*
+ *  Followize utility functions
+ */
+
+var fw = fw || {};
+
+fw.util = {
+    SIMPLE_EMAIL_RE: /^\S+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+$/,
+    AT_REPLIES_RE: /@(\w+)/g,
+    STOCKTWITS_RE: /\$([A-Z]+)/g,
+    HASHTAGS_RE: /#(\w*[A-Za-z_]\w+)/g,
+    LONELY_AMP_RE: /&([^#a-zA-Z0-9])/g,
+
+    log: function(s) {
+        if (typeof console !== "undefined") { console.log(s); }
+    },
+
+    makeLink: function(text) {
+        if (text.indexOf("http://") === 0 || text.indexOf("https://") === 0) {
+            return "<a href=\"" + text + "\">" + text + "</a>";
+        }
+        else if (text.length > 4 && (text.indexOf("www.") === 0 ||
+                text.indexOf(".com") === text.length - 4 ||
+                text.indexOf(".org") === text.length - 4 ||
+                text.indexOf(".net") === text.length - 4)) {
+            return '<a href="http://' + text + '/" target="_blank">' + text + '</a>';
+        }
+        else if (text.indexOf("@") !== -1 && fw.util.SIMPLE_EMAIL_RE.test(text)) {
+            return "<a href=\"mailto:" + text + "/\">" + text + "</a>";
+        }
+        else return text;
+    },
+
+    urlize: function(text) {
+        return $.map(text.split(" "), fw.util.makeLink).join(" ");
+    },
+
+    atReplies: function(text) {
+        function replace_func(match, name, offset, original) {
+            if (offset !== 0 && original[offset - 1] !== " ") {
+                return match
+            }
+            else {
+                return ['@<a href="http://twitter.com/', name, '" target="_blank">', name, '</a>'].join("");
+            }
+        }
+        return text.replace(fw.util.AT_REPLIES_RE, replace_func);
+    },
+
+    stocktwits: function(text) {
+        var replace_text = '$<a href="http://www.stocktwits.com/t/$1/" target="_blank">$1</a>';
+        return text.replace(fw.util.STOCKTWITS_RE, replace_text);
+    },
+
+    hashtags: function(text) {
+        var replace_text = '#<a href="http://search.twitter.com/search?q=%23$1" target="_blank">$1</a>';
+        return text.replace(fw.util.HASHTAGS_RE, replace_text);
+    },
+
+    escapeLonelyAmps: function(text) {
+        return text.replace(fw.util.LONELY_AMP_RE, "&amp;$1");
+    },
+
+    addLinks: function(text) {
+        return fw.util.urlize(fw.util.atReplies(fw.util.stocktwits(fw.util.hashtags(fw.util.escapeLonelyAmps(text)))));
+    },
+
+    addLinksToUser: function(user) {
+        if (user && user["status"]) {
+            user["status"].html = fw.util.addLinks(user["status"].text);
+        }
+        return user;
+    }
+}

@@ -1,13 +1,6 @@
 var MONTH_SHORT_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
         "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-var SIMPLE_EMAIL_RE = /^\S+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+$/;
-var AT_REPLIES_RE = /@(\w+)/g;
-var STOCKTWITS_RE = /\$([A-Z]+)/g;
-var HASHTAGS_RE = /#(\w*[A-Za-z_]\w+)/g;
-var LONELY_AMP_RE = /&([^#a-zA-Z0-9])/g;
-
-
 function ajaxEnabled() {
     $(".userinfo").append(" | <span class=\"ok\">AJAX</span>");
 }
@@ -106,56 +99,6 @@ function timediff(t) {
         if (amount != 1) unit_str += "s";
         return [amount, unit_str, "ago"].join(" ")
     }
-}
-
-function makeLink(text) {
-    if (text.indexOf("http://") === 0 || text.indexOf("https://") === 0) {
-        return "<a href=\"" + text + "\">" + text + "</a>";
-    }
-    else if (text.length > 4 && (text.indexOf("www.") === 0 ||
-            text.indexOf(".com") === text.length - 4 ||
-            text.indexOf(".org") === text.length - 4 ||
-            text.indexOf(".net") === text.length - 4)) {
-        return "<a href=\"http://" + text + "/\">" + text + "</a>";
-    }
-    else if (text.indexOf("@") !== -1 && SIMPLE_EMAIL_RE.test(text)) {
-        return "<a href=\"mailto:" + text + "/\">" + text + "</a>";
-    }
-    else return text;
-}
-
-function urlize(text) {
-    return $.map(text.split(" "), makeLink).join(" ");
-}
-
-function atReplies(text) {
-    function replace_func(match, name, offset, original) {
-        if (offset !== 0 && original[offset - 1] !== " ") {
-            return match
-        }
-        else {
-            return ["@<a href=\"http://twitter.com/", name, "\">", name, "</a>"].join("");
-        }
-    }
-    return text.replace(AT_REPLIES_RE, replace_func);
-}
-
-function stocktwits(text) {
-    var replace_text = "$<a href=\"http://www.stocktwits.com/t/$1/\">$1</a>";
-    return text.replace(STOCKTWITS_RE, replace_text);
-}
-
-function hashtags(text) {
-    var replace_text = "#<a href=\"http://search.twitter.com/search?q=%23$1\">$1</a>";
-    return text.replace(HASHTAGS_RE, replace_text);
-}
-
-function escapeLonelyAmps(text) {
-    return text.replace(LONELY_AMP_RE, "&amp;$1");
-}
-
-function addLinks(text) {
-    return urlize(atReplies(stocktwits(hashtags(escapeLonelyAmps(text)))));
 }
 
 function getRowUserClass(row) {

@@ -26,8 +26,8 @@ dt { font-weight:bold; margin-top:0.7em; }
 /* layout */
 
 .page { margin:20px 40px; }
-.header { font-size:small; padding-bottom:0.5em; border-bottom:2px solid
-    #eee; margin-bottom:0.5em; position:relative; }
+.header { font-size:small; padding-bottom:0.5em;
+    border-bottom:2px solid #eee; margin-bottom:0.5em; position:relative; }
 .header h1 { display:inline; margin:0; }
 
 .userinfo { font-size:x-small; font-weight:normal; color:#777; }
@@ -79,8 +79,8 @@ input, textarea, select { font-size:1em; }
 
 .important-instruction { font-weight:bold; margin:1.em 0 1.3em 0; }
 .auth-wrap { padding:14px 0; }
-a.auth { background-color:#06c; border:1px solid #039; color:white; padding:14px 22px;
-    font-size:x-large; text-decoration:none;
+a.auth { background-color:#06c; border:1px solid #039; color:white;
+    padding:14px 22px; font-size:x-large; text-decoration:none;
     -moz-border-radius:10px; -webkit-border-radius:10px; 
     text-shadow:2px 2px 0px #039; }
 a.auth:hover { text-decoration:underline; }
