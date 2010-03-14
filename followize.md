@@ -36,3 +36,5 @@ Displaying timelines
 
   * If user is someone I follow, open their timeline and scroll to the right
     part of the page.
+
+  * Get retweets.
