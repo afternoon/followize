@@ -30,7 +30,9 @@ Displaying timelines
 
       * Timelines copied to new state.
 
-      * Timeline object refreshed if new state indicates newer post.
+      * Timeline object refreshed if new state indicates newer tweet.
+
+      * Use since_id when getting newer tweets.
 
   * If user is someone I follow, open their timeline and scroll to the right
     part of the page.
