@@ -99,7 +99,7 @@ fw.util = {
             }
 
             if (amount != 1) unit_str += "s";
-            return [amount, unit_str, "ago"].join(" ")
+            return [amount, unit_str, "ago"].join(" ");
         }
     },
 
