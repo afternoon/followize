@@ -39,11 +39,15 @@ fw.state = {
         return fw.state._users["user" + username]
     },
 
-    openUser: function(username) {
+    openUser: function(username, handleTimelineReady) {
         var user = fw.state.user(username);
         fw.util.log("Opening user " + username);
         user.open = true;
-        user.timeline = [{"html": "<strong>WOO</strong>", "text": "WOO", "created_at_rel": "just now", "source": "local"}];
+        twitter.timeline(username, function(timeline) {
+            user.timeline = timeline;
+            fw.util.log({userTimeline: user});
+            handleTimelineReady(user);
+        });
     }
 };
 
@@ -63,11 +67,13 @@ fw.view = {
     appendTimelineRow: function(user, status_, sibling) {
         var userCopy = $.extend(true, {}, user);
         userCopy["status"] = status_;
-        sibling.after($.mustache(fw.view.TIMELINE_HTML, userCopy, {"status": fw.view.STATUS_HTML}));
+        fw.util.log({userRowStatus: userCopy});
+        sibling.after($.mustache(fw.view.TIMELINE_HTML, fw.util.fixupUser(userCopy), {"status": fw.view.STATUS_HTML}));
     },
 
     // append rows for a user's expanded timeline
     appendTimeline: function(user, sibling) {
+        fw.util.log({userRow: user});
         $.map(user.timeline, function(status_) { fw.view.appendTimelineRow(user, status_, sibling); });
     },
 
@@ -89,16 +95,20 @@ fw.view = {
     },
 
     // handle click on username or profile pic
-    userClick: function(e) {
-        var username = fw.util.usernameFromAnchor(this);
-        fw.state.openUser(username);
-        fw.view.appendTimeline(fw.state.user(username), $("tr.user_" + username));
+    userOpenClick: function(e) {
+        // TODO show throbber below this
+        var username = fw.util.usernameFromAnchor(this),
+            handleTimelineReady = function(user) {
+                fw.view.appendTimeline(user, $("tr.user_" + user.screen_name));
+                // TODO bind userCloseClick to anchor
+            };
+        fw.state.openUser(username, handleTimelineReady);
         return false;
     },
 
     // bind handlers for clicks to DOM nodes created by template expansion
     bindEventHandlers: function() {
-        $("td.profile_image a, td.name a").click(fw.view.userClick);
+        $("td.profile_image a, td.name a").click(fw.view.userOpenClick);
     },
 
     // update cache and show it in one operation

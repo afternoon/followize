@@ -9,7 +9,7 @@
 var twitter = {
     BASE: "https://api.twitter.com/1",
 
-    TIMELINE_LENGTH: 20,
+    TIMELINE_LENGTH: 10,
 
     oauthToken: "",
     oauthTokenSecret: "",
@@ -74,14 +74,17 @@ var twitter = {
 
     // get timeline for a user
     timeline: function(username, handleTimeline) {
-        var timelineError = function(params, textStatus) {
-            log("Error: " + textStatus);
-        };
+        var timelineSuccess = function(data, textStatus) {
+                return handleTimeline(data);
+            },
+            timelineError = function(params, textStatus) {
+                log("Error: " + textStatus);
+            };
 
         twitter.load({
             url: twitter.BASE + "/statuses/user_timeline/" + username + ".json",
             data: {count: twitter.TIMELINE_LENGTH},
-            success: handleTimeline,
+            success: timelineSuccess,
             error: timelineError
         });
     },
