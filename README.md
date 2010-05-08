@@ -1,5 +1,16 @@
-followize2
-==========
+Followize
+=========
+
+Followize is a Twitter client inspired by Gmail. It's optmised to make reading
+efficient and easy.
+
+Followize is a Google App Engine application written in Python and built on
+Django, but the majority of the work is done within the client. The back-end
+component handles creating an OAuth session with Twitter, but the client
+requests data directly via JSONP (using JQuery).
+
+TODO
+====
 
   * Clicking name opens timeline like followize1 (open users remembered when
     display updates - just store list of names in fw.state.openUsers?).
@@ -20,14 +31,10 @@ followize2
 Displaying timelines
 --------------------
 
-  * Timeline loaded via JSON.
-
-  * Stored in global state object:
-  
-        _state[username].timeline = [tweet, tweet, tweet]
+  * Timeline loaded via JSON, stored in global state object.
 
   * Extend fw.view.appendUser:
-  
+ 
         if (user.open === true) {
             appendTimeline(user, container);
         }
