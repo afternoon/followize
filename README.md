@@ -13,6 +13,8 @@ requests data directly via JSONP.
 TODO
 ====
 
+  * Posting.
+
   * Show "in reply to" on Tweets.
 
   * Open users remembered when display updates.
