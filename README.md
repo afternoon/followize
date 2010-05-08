@@ -13,8 +13,6 @@ requests data directly via JSONP.
 TODO
 ====
 
-  * Click name of user to close timeline.
-
   * Show "in reply to" on Tweets.
 
   * Open users remembered when display updates.
@@ -34,7 +32,7 @@ TODO
   * Get retweets.
 
   * Mentions.
-  
+
   * DMs.
 
   * Lists and searches (subscriptions stored at Twitter and cached in globalStorage).

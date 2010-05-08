@@ -45,7 +45,6 @@ fw.state = {
         user.open = true;
         twitter.timeline(username, function(timeline) {
             user.timeline = timeline;
-            fw.util.log({userTimeline: user});
             handleTimelineReady(user);
         });
     }
@@ -59,21 +58,20 @@ fw.view = {
     CONTAINER_EXPR: "#content",
     TABLE_EXPR: "#data",
     TABLE_HTML: '<table id="data" cellpadding="0" cellspacing="0"><tbody></tbody></table>',
-    USER_HTML: '<tr id="user_{{screen_name}}" class="user user_{{screen_name}}"><td class="profile_image"><a href="http://twitter.com/{{screen_name}}" title="{{name}} &mdash; {{description}}" target="_blank"><img src="{{profile_image_url}}" width="14" height="14" alt=""></a></td><td class="name"><a href="http://twitter.com/{{screen_name}}" title="{{name}} &mdash; {{description}}" target="_blank">{{screen_name}}</a></td><td class="status">{{>status}}</td><td class="send_reply"><a href="http://twitter.com/?status=@{{screen_name}}%20&amp;in_reply_to={{in_reply_to_status_id}}" title="Reply to {{screen_name}}">@</a></td><td class="send_retweet"><a href="http://twitter.com/?status=RT%20%40{{screen_name}}%3A%20{{text}}&amp;in_reply_to={{in_reply_to_status_id}}" title="Retweet">&#x267a;</a></td><td class="send_dm"><a href="http://twitter.com/?status=d%20{{screen_name}}%20" title="Direct message {{screen_name}}">&#x2709;</a></td></tr>',
-    TIMELINE_HTML: '<tr id="user_{{screen_name}}" class="user user_{{screen_name}}"><td class="profile_image"></td><td class="name"></td><td class="status">{{>status}}</td><td class="send_reply"><a href="http://twitter.com/?status=@{{screen_name}}%20&amp;in_reply_to={{in_reply_to_status_id}}" title="Reply to {{screen_name}}">@</a></td><td class="send_retweet"><a href="http://twitter.com/?status=RT%20%40{{screen_name}}%3A%20{{text}}&amp;in_reply_to={{in_reply_to_status_id}}" title="Retweet">&#x267a;</a></td><td class="send_dm"><a href="http://twitter.com/?status=d%20{{screen_name}}%20" title="Direct message {{screen_name}}">&#x2709;</a></td></tr>',
+    USER_HTML: '<tr id="user_{{screen_name}}" class="user user_{{screen_name}}"><td class="profile_image"><a class="user_{{screen_name}}_anchor" href="http://twitter.com/{{screen_name}}" title="{{name}} &mdash; {{description}}" target="_blank"><img src="{{profile_image_url}}" width="14" height="14" alt=""></a></td><td class="name"><a class="user_{{screen_name}}_anchor" href="http://twitter.com/{{screen_name}}" title="{{name}} &mdash; {{description}}" target="_blank">{{screen_name}}</a></td><td class="status">{{>status}}</td><td class="send_reply"><a href="http://twitter.com/?status=@{{screen_name}}%20&amp;in_reply_to={{in_reply_to_status_id}}" title="Reply to {{screen_name}}">@</a></td><td class="send_retweet"><a href="http://twitter.com/?status=RT%20%40{{screen_name}}%3A%20{{text}}&amp;in_reply_to={{in_reply_to_status_id}}" title="Retweet">&#x267a;</a></td><td class="send_dm"><a href="http://twitter.com/?status=d%20{{screen_name}}%20" title="Direct message {{screen_name}}">&#x2709;</a></td></tr>',
+    TIMELINE_HTML: '<tr class="old user_{{screen_name}} old_user_{{screen_name}}"><td class="profile_image"></td><td class="name"></td><td class="status">{{>status}}</td><td class="send_reply"><a href="http://twitter.com/?status=@{{screen_name}}%20&amp;in_reply_to={{in_reply_to_status_id}}" title="Reply to {{screen_name}}">@</a></td><td class="send_retweet"><a href="http://twitter.com/?status=RT%20%40{{screen_name}}%3A%20{{text}}&amp;in_reply_to={{in_reply_to_status_id}}" title="Retweet">&#x267a;</a></td><td class="send_dm"><a href="http://twitter.com/?status=d%20{{screen_name}}%20" title="Direct message {{screen_name}}">&#x2709;</a></td></tr>',
+    MESSAGE_HTML: '<tr id="{{id}}" class="old"><td class="profile_image"></td><td class="name"></td><td class="status">{{message}}</td><td class="send_reply"></td><td class="send_retweet"></td><td class="send_dm"></td></tr>',
     STATUS_HTML: '<div class="tweet"><span class="text">{{{html}}}</span> <span class="created_at">{{created_at_rel}}</span> <span class="source">from {{{source}}}</span></div>',
 
     // add rows for each line in the user's timeline
     appendTimelineRow: function(user, status_, sibling) {
         var userCopy = $.extend(true, {}, user);
         userCopy["status"] = status_;
-        fw.util.log({userRowStatus: userCopy});
         sibling.after($.mustache(fw.view.TIMELINE_HTML, fw.util.fixupUser(userCopy), {"status": fw.view.STATUS_HTML}));
     },
 
     // append rows for a user's expanded timeline
     appendTimeline: function(user, sibling) {
-        fw.util.log({userRow: user});
         $.map(user.timeline, function(status_) { fw.view.appendTimelineRow(user, status_, sibling); });
     },
 
@@ -96,13 +94,43 @@ fw.view = {
 
     // handle click on username or profile pic
     userOpenClick: function(e) {
-        // TODO show throbber below this
         var username = fw.util.usernameFromAnchor(this),
+            loadingId = "loading_" + username,
+            elem = $("tr.user_" + username),
             handleTimelineReady = function(user) {
-                fw.view.appendTimeline(user, $("tr.user_" + user.screen_name));
-                // TODO bind userCloseClick to anchor
+                var anchorClass = ".user_" + user.screen_name + "_anchor";
+
+                // hide loader
+                $("#" + loadingId).remove();
+
+                // add timeline rows
+                fw.view.appendTimeline(user, elem);
+
+                // bind userCloseClick to anchor
+                $(anchorClass).unbind("click", fw.view.userOpenClick).bind("click", fw.view.userCloseClick);
             };
+        
+        // show loading message
+        elem.after($.mustache(fw.view.MESSAGE_HTML, {id: loadingId, message: "Loading timeline..."}));
+
+        // call Twitter
         fw.state.openUser(username, handleTimelineReady);
+
+        return false;
+    },
+    
+    // handle close user timeline click - just remove the timeline rows
+    userCloseClick: function(e) {
+        var username = fw.util.usernameFromAnchor(this),
+            anchorClass = ".user_" + username + "_anchor";
+        fw.util.log("Closing user " + username);
+
+        // close timeline rows for user
+        $(".old_user_" + username).remove();
+
+        // bind userOpenClick to anchor
+        $(anchorClass).unbind("click", fw.view.userCloseClick).bind("click", fw.view.userOpenClick);
+
         return false;
     },
 
