@@ -13,7 +13,9 @@ requests data directly via JSONP.
 TODO
 ====
 
-  * Clicking open user closes
+  * Click name of user to close timeline.
+
+  * Show "in reply to" on Tweets.
 
   * Open users remembered when display updates.
       * Timelines copied to new state.
@@ -29,12 +31,11 @@ TODO
   * Redesign (with refresh button, big progress meter on first load, small meter
     on periodical reload).
 
-  * If user is someone I follow, open their timeline and scroll to the right
-    part of the page.
-
   * Get retweets.
 
-  * Read mentions and DMs.
+  * Mentions.
+  
+  * DMs.
 
   * Lists and searches (subscriptions stored at Twitter and cached in globalStorage).
 
