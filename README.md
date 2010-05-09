@@ -13,8 +13,6 @@ requests data directly via JSONP.
 TODO
 ----
 
-  * Posting, replying, sending DMs.
-
   * Expand "In reply to" conversations.
 
   * Get retweets.
