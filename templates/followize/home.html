@@ -20,12 +20,12 @@
 {% block userinfo %}
   | <a id="current_user" href="http://twitter.com/{{ screen_name }}" target="_blank">{{ screen_name }}</a>
     (following {{ friends_count }})
-  | <a id="refresh" href="#">refresh</a>
+  | <a id="refresh" href="#" accesskey="r">refresh</a>
   | <a id="logout" href="/auth/clear/">log out</a>
 {% endblock %}
 
 {% block secondarynav %}
-  <a href="/post/" id="post">&#x270e; Post</a>
+  <a href="/post/" id="post" accesskey="p">&#x270e; Post</a>
 {% endblock %}
 
 {% block body %}
