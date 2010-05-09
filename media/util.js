@@ -106,6 +106,7 @@ fw.util = {
     fixupUser: function(user) {
         if (user && user["status"]) {
             user["status"].html = fw.util.addLinks(user["status"].text);
+            user["status"].text_escaped = escape(user["status"].text);
             user["status"].created_at_rel = fw.util.timediff(user["status"].created_at);
             user["status"].screen_name = user.screen_name;
             if (user["status"].in_reply_to_status_id !== null) {

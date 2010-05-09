@@ -19,16 +19,9 @@ TODO
 
   * Show current user.
 
-  * Open users remembered when display updates.
-      * Timelines copied to new state.
-      * Timeline object refreshed if new state indicates newer tweet.
-      * Use `since_id` when getting newer tweets.
-
   * Posting, replying, sending DMs.
 
   * Expand "In reply to" conversations.
-
-  * Cache state.
 
   * Redesign (with refresh button, big progress meter on first load, small meter
     on periodical reload).
@@ -44,3 +37,10 @@ TODO
   * Expand short urls.
 
   * Show images in dialog, perhaps with thumbnail inline a la FriendFeed.
+
+  * Cache state in browser sessionStorage.
+
+  * Open users remembered when display updates.
+      * Timelines copied to new state.
+      * Timeline object refreshed if new state indicates newer tweet.
+      * Use `since_id` when getting newer tweets.
