@@ -13,9 +13,14 @@ requests data directly via JSONP.
 TODO
 ----
 
+  * Ajax posting.
+
   * Expand "In reply to" conversations.
 
   * Get retweets.
+
+  * Add `target="_blank"` to "from Client" links
+      * Watch out for special value: "web"
 
   * Redesign (with refresh button, big progress meter on first load, small meter
     on periodical reload).
@@ -23,9 +28,6 @@ TODO
   * Mentions.
 
   * DMs.
-
-  * Add `target="_blank"` to "from Client" links
-      * Watch out for special value: "web"
 
   * Remember open user state when updating, reloading, going forward, back.
       * `/home/#afternoon+martinkl+hailpixel`
