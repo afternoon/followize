@@ -7,7 +7,8 @@
 
 // twitter module - just a namespace
 var twitter = {
-    BASE: "https://api.twitter.com/1",
+    API_BASE: "https://api.twitter.com/1",
+    WEB_BASE: "http://twitter.com",
 
     TIMELINE_LENGTH: 10,
 
@@ -65,7 +66,7 @@ var twitter = {
             };
 
         twitter.load({
-            url: twitter.BASE + "/statuses/friends.json",
+            url: twitter.API_BASE + "/statuses/friends.json",
             data: {cursor: c},
             success: followingSuccess,
             error: followingError
@@ -73,7 +74,7 @@ var twitter = {
     },
 
     // get timeline for a user
-    timeline: function(username, handleTimeline) {
+    timeline: function(screenName, handleTimeline) {
         var timelineSuccess = function(data, textStatus) {
                 return handleTimeline(data);
             },
@@ -82,7 +83,7 @@ var twitter = {
             };
 
         twitter.load({
-            url: twitter.BASE + "/statuses/user_timeline/" + username + ".json",
+            url: twitter.API_BASE + "/statuses/user_timeline/" + screenName + ".json",
             data: {count: twitter.TIMELINE_LENGTH},
             success: timelineSuccess,
             error: timelineError
@@ -98,5 +99,9 @@ var twitter = {
         return function(a, b) {
             return userTime(b) - userTime(a);
         }
-    }()
+    }(),
+
+    tweetUrl: function(screenName, tweetId) {
+        return twitter.WEB_BASE + "/" + screenName + "/status/" + tweetId;
+    }
 };

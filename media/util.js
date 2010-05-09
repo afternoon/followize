@@ -111,7 +111,7 @@ fw.util = {
             user["status"].screen_name = user.screen_name;
             if (user["status"].in_reply_to_status_id !== null) {
                 user["status"].in_reply_to = {
-                    url: "http://twitter.com/" + user["status"].in_reply_to_screen_name + "/status/" + user["status"].in_reply_to_status_id,
+                    url: twitter.tweetUrl(user["status"].in_reply_to_screen_name, user["status"].in_reply_to_status_id),
                     screen_name: user["status"].in_reply_to_screen_name
                 };
             }
@@ -119,7 +119,7 @@ fw.util = {
         return user;
     },
 
-    usernameFromAnchor: function(anchor) {
+    screenNameFromAnchor: function(anchor) {
         var tr = $(anchor).parent().parent(),
             classes = tr.attr("class").split(" ");
         for (var i = 0; i < classes.length; i++) {
