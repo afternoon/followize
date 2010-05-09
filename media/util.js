@@ -50,7 +50,7 @@ fw.util = {
                 return match
             }
             else {
-                return ['@<a href="http://twitter.com/', name, '" target="_blank">', name, '</a>'].join("");
+                return ['@<a href="', twitter.WEB_BASE, '/', name, '" target="_blank">', name, '</a>'].join("");
             }
         }
         return text.replace(fw.util.AT_REPLIES_RE, replace_func);
