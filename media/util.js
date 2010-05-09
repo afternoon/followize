@@ -124,6 +124,9 @@ fw.util = {
             if (user.screen_name === fw.state.currentUserScreenName) {
                 user.me = "me";
             }
+            if (user["status"].in_reply_to_screen_name === fw.state.currentUserScreenName) {
+                user.reply_to_me = "reply_to_me";
+            }
         }
         return user;
     },
