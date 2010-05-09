@@ -34,9 +34,12 @@ TODO
 
   * Show images in dialog, perhaps with thumbnail inline a la FriendFeed.
 
-  * Cache state in browser sessionStorage.
+  * Cache data from Twitter in browser sessionStorage (or globalStorage?).
 
-  * Open users remembered when display updates.
-      * Timelines copied to new state.
-      * Timeline object refreshed if new state indicates newer tweet.
-      * Use `since_id` when getting newer tweets.
+  * Remember open user state when updating, reloading, going forward, back.
+      * `/home/#afternoon+martinkl+hailpixel`
+
+  * Add `target="_blank"` to "from Client"
+      * Watch out for special value: "web"
+
+  * Zero-pad minutes.
