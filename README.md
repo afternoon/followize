@@ -13,10 +13,6 @@ requests data directly via JSONP.
 TODO
 ====
 
-  * Twitter links open in new browser.
-
-  * Posting.
-
   * Show current user.
 
   * Posting, replying, sending DMs.
