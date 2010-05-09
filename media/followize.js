@@ -116,6 +116,7 @@ fw.view = {
     // append rows for a user's expanded timeline
     appendTimeline: function(user, sibling) {
         $.map(user.timeline, function(status_) { fw.view.appendTimelineRow(user, status_, sibling); });
+        fw.view.bindSendHandlers();
     },
 
     // handle click on screen name or profile pic
@@ -218,16 +219,8 @@ fw.view = {
         charsRemaining.css("color", c);
     },
 
-    postOpenClick: function(e) {
-        fw.view.post();
-        $("#post").unbind("click", fw.view.postOpenClick).bind("click", fw.view.postCloseClick);
-        return false;
-    },
-
-    postCloseClick: function(e) {
-        $("#post_entry").slideUp(fw.view.SLIDE_SPEED);
-        $("#post").unbind("click", fw.view.postCloseClick).bind("click", fw.view.postOpenClick);
-        return false;
+    refresh: function(e) {
+        refreshTimer = fw.view.showFollowingRepeatedly();
     },
 
     showOriginal: function(anchor) {
@@ -250,19 +243,32 @@ fw.view = {
         return false;
     },
 
+    // bind timeline row handlers
+    bindSendHandlers: function(context) {
+        $("td.reply a", context).click(fw.view.replyOpenClick);
+        $("td.send_reply a, td.send_retweet a, td.send_dm a", context).click(fw.view.sendClick);
+    },
+
     // bind handlers for clicks to DOM nodes created by template expansion
     bindTimelineHandlers: function() {
         $("td.profile_image a, td.name a").click(fw.view.userOpenClick);
-        $("td.reply a").click(fw.view.replyOpenClick);
-        $("td.send_reply a, td.send_retweet a, td.send_dm a").click(fw.view.sendClick);
-    },
-
-    refresh: function(e) {
-        refreshTimer = fw.view.showFollowingRepeatedly();
+        fw.view.bindSendHandlers();
     },
 
     refreshClick: function(e) {
         fw.view.refresh();
+        return false;
+    },
+
+    postOpenClick: function(e) {
+        fw.view.post();
+        $("#post").unbind("click", fw.view.postOpenClick).bind("click", fw.view.postCloseClick);
+        return false;
+    },
+
+    postCloseClick: function(e) {
+        $("#post_entry").slideUp(fw.view.SLIDE_SPEED);
+        $("#post").unbind("click", fw.view.postCloseClick).bind("click", fw.view.postOpenClick);
         return false;
     },
 
