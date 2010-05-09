@@ -43,3 +43,5 @@ TODO
   * Expand short urls.
 
   * Show images in dialog, perhaps with thumbnail inline a la FriendFeed.
+
+  * Bookmarklet for fast posting URLs via Bit.ly.
