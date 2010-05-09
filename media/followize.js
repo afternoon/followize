@@ -58,29 +58,23 @@ fw.view = {
     CONTAINER_EXPR: "#content",
     TABLE_EXPR: "#data",
     TABLE_HTML: '<table id="data" cellpadding="0" cellspacing="0"><tbody></tbody></table>',
-    USER_HTML: '<tr id="user_{{screen_name}}" class="user user_{{screen_name}}"><td class="profile_image"><a class="user_{{screen_name}}_anchor" href="http://twitter.com/{{screen_name}}" title="{{name}} &mdash; {{description}}" target="_blank"><img src="{{profile_image_url}}" width="14" height="14" alt=""></a></td><td class="name"><a class="user_{{screen_name}}_anchor" href="http://twitter.com/{{screen_name}}" title="{{name}} &mdash; {{description}}" target="_blank">{{screen_name}}</a></td><td class="status">{{>status}}</td><td class="send_reply"><a href="http://twitter.com/?status=@{{screen_name}}%20&amp;in_reply_to={{in_reply_to_status_id}}" title="Reply to {{screen_name}}">@</a></td><td class="send_retweet"><a href="http://twitter.com/?status=RT%20%40{{screen_name}}%3A%20{{text}}&amp;in_reply_to={{in_reply_to_status_id}}" title="Retweet">&#x267a;</a></td><td class="send_dm"><a href="http://twitter.com/?status=d%20{{screen_name}}%20" title="Direct message {{screen_name}}">&#x2709;</a></td></tr>',
-    TIMELINE_HTML: '<tr class="old user_{{screen_name}} old_user_{{screen_name}}"><td class="profile_image"></td><td class="name"></td><td class="status">{{>status}}</td><td class="send_reply"><a href="http://twitter.com/?status=@{{screen_name}}%20&amp;in_reply_to={{in_reply_to_status_id}}" title="Reply to {{screen_name}}">@</a></td><td class="send_retweet"><a href="http://twitter.com/?status=RT%20%40{{screen_name}}%3A%20{{text}}&amp;in_reply_to={{in_reply_to_status_id}}" title="Retweet">&#x267a;</a></td><td class="send_dm"><a href="http://twitter.com/?status=d%20{{screen_name}}%20" title="Direct message {{screen_name}}">&#x2709;</a></td></tr>',
-    MESSAGE_HTML: '<tr id="{{id}}" class="old"><td class="profile_image"></td><td class="name"></td><td class="status">{{message}}</td><td class="send_reply"></td><td class="send_retweet"></td><td class="send_dm"></td></tr>',
-    STATUS_HTML: '<div class="tweet"><span class="text">{{{html}}}</span> <span class="created_at">{{created_at_rel}}</span> <span class="source">from {{{source}}}</span></div>',
-
-    // add rows for each line in the user's timeline
-    appendTimelineRow: function(user, status_, sibling) {
-        var userCopy = $.extend(true, {}, user);
-        userCopy["status"] = status_;
-        sibling.after($.mustache(fw.view.TIMELINE_HTML, fw.util.fixupUser(userCopy), {"status": fw.view.STATUS_HTML}));
-    },
-
-    // append rows for a user's expanded timeline
-    appendTimeline: function(user, sibling) {
-        $.map(user.timeline, function(status_) { fw.view.appendTimelineRow(user, status_, sibling); });
-    },
+    USER_HTML: '<tr id="user_{{screen_name}}" class="user user_{{screen_name}}"><td class="profile_image"><a class="user_{{screen_name}}_anchor" href="http://twitter.com/{{screen_name}}" title="{{name}} &mdash; {{description}}" target="_blank"><img src="{{profile_image_url}}" width="14" height="14" alt=""></a></td><td class="name"><a class="user_{{screen_name}}_anchor" href="http://twitter.com/{{screen_name}}" title="{{name}} &mdash; {{description}}" target="_blank">{{screen_name}}</a></td>{{>status}}</tr>',
+    TIMELINE_HTML: '<tr class="old user_{{screen_name}} old_user_{{screen_name}}"><td class="profile_image"></td><td class="name"></td>{{>status}}</tr>',
+    STATUS_HTML: '<td class="status"><div class="tweet"><span class="text">{{{html}}}</span> <span class="created_at">{{created_at_rel}}</span> <span class="source">from {{{source}}}</span>{{>in_reply_to}}</div></td><td class="send_reply"><a href="http://twitter.com/?status=@{{screen_name}}%20&amp;in_reply_to={{id}}" title="Reply to {{screen_name}}">@</a></td><td class="send_retweet"><a href="http://twitter.com/?status=RT%20%40{{screen_name}}%20{{text}}&amp;in_reply_to={{id}}" title="Retweet">&#x267a;</a></td><td class="send_dm"><a href="http://twitter.com/?status=d%20{{screen_name}}%20" title="Direct message {{screen_name}}">&#x2709;</a></td>',
+    IN_REPLY_TO_HTML: ' <span class="reply">in reply to <a href="{{url}}" title="View {{screen_name}}\'s tweet">{{screen_name}}</a></span>',
+    MESSAGE_HTML: '<tr id="tweet_{{id}}" class="old"><td class="profile_image"></td><td class="name"></td><td class="status">{{message}}</td><td class="send_reply"></td><td class="send_retweet"></td><td class="send_dm"></td></tr>',
 
     // append rendered HTML for a user to provided container node
     appendUser: function(user, container) {
-        container.append($.mustache(fw.view.USER_HTML, user, {"status": fw.view.STATUS_HTML}));
-        
         var open = user.open || false,
-            timeline = user.timeline || null;
+            timeline = user.timeline || null,
+            templates = {
+                "status": fw.view.STATUS_HTML,
+                "in_reply_to": fw.view.IN_REPLY_TO_HTML
+            };
+
+        container.append($.mustache(fw.view.USER_HTML, user, templates));
+        
         if (timeline && open) { fw.view.appendTimeline(user); }
     },
 
@@ -90,6 +84,23 @@ fw.view = {
         $(fw.view.CONTAINER_EXPR).html(fw.view.TABLE_HTML);
         var tbody = $("tbody", fw.view.TABLE_EXPR);
         $.map(users, function(user, i) { fw.view.appendUser(user, tbody); });
+    },
+
+    // add rows for each line in the user's timeline
+    appendTimelineRow: function(user, status_, sibling) {
+        var userCopy = $.extend(true, {}, user), // shallow copy
+            templates = {
+                "status": fw.view.STATUS_HTML,
+                "in_reply_to": fw.view.IN_REPLY_TO_HTML
+            };
+        userCopy["status"] = status_;
+        fw.util.log({timelineRow: userCopy});
+        sibling.after($.mustache(fw.view.TIMELINE_HTML, fw.util.fixupUser(userCopy), templates));
+    },
+
+    // append rows for a user's expanded timeline
+    appendTimeline: function(user, sibling) {
+        $.map(user.timeline, function(status_) { fw.view.appendTimelineRow(user, status_, sibling); });
     },
 
     // handle click on username or profile pic

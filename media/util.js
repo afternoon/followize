@@ -107,6 +107,13 @@ fw.util = {
         if (user && user["status"]) {
             user["status"].html = fw.util.addLinks(user["status"].text);
             user["status"].created_at_rel = fw.util.timediff(user["status"].created_at);
+            user["status"].screen_name = user.screen_name;
+            if (user["status"].in_reply_to_status_id !== null) {
+                user["status"].in_reply_to = {
+                    url: "http://twitter.com/" + user["status"].in_reply_to_screen_name + "/status/" + user["status"].in_reply_to_status_id,
+                    screen_name: user["status"].in_reply_to_screen_name
+                };
+            }
         }
         return user;
     },

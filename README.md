@@ -13,20 +13,20 @@ requests data directly via JSONP.
 TODO
 ====
 
-  * Posting.
+  * Twitter links open in new browser.
 
-  * Show "in reply to" on Tweets.
+  * Posting.
 
   * Open users remembered when display updates.
       * Timelines copied to new state.
       * Timeline object refreshed if new state indicates newer tweet.
-      * Use since ID when getting newer tweets.
+      * Use `since_id` when getting newer tweets.
 
   * Posting, replying, sending DMs.
 
   * Expand "In reply to" conversations.
 
-  * Cache state in sessionStorage.
+  * Cache state.
 
   * Redesign (with refresh button, big progress meter on first load, small meter
     on periodical reload).
