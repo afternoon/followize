@@ -27,16 +27,29 @@
     <div class="page">
       <div class="header">
         <h1><a href="/home/" title="Home">{% trans "Followize" %}</a></h1>
+
+        <span class="userinfo">
+          {% block userinfo %}{% endblock %}
+        </span>
+
+        <div class="secondarynav">
+          {% block secondarynav %}{% endblock %}
+        </div>
       </div>
 
       {% block body %}{% endblock %}
 
       <div class="footer">
         {% blocktrans %}
-          <p><a href="/">Followize</a> was made by <a 
-            href="http://aftnn.org/">Ben Godfrey</a> and is powered by <a 
-            href="http://twitter.com/">Twitter</a> and <a 
-            href="http://code.google.com/appengine/">Google App Engine</a>.</p>
+          <p>
+            <a href="/">Followize</a> |
+            Made by <a href="http://aftnn.org/">Ben Godfrey</a> |
+            Powered by
+              <a href="http://twitter.com/">Twitter</a>,
+              <a href="http://code.google.com/appengine/">Google App Engine</a>,
+              <a href="http://djangoproject.com/">Django</a> and
+              <a href="http://jquery.com/">JQuery</a>
+            </p>
         {% endblocktrans %}
       </div>
     </div>

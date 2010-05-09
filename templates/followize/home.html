@@ -7,7 +7,7 @@
   <script type="text/javascript">
     // set up twitter params (static vars)
     twitter.init({
-      oauthToken:       "{{ oauth_token }}",
+      oauthToken: "{{ oauth_token }}",
       oauthConsumerKey: "{{ oauth_consumer_key }}"
     });
 
@@ -19,6 +19,16 @@
         refreshTimer = fw.view.showFollowingRepeatedly();
     });
   </script>
+{% endblock %}
+
+{% block userinfo %}
+  | <a href="http://twitter.com/{{ screen_name }}">{{ screen_name }}</a> 
+  (following {{ friends_count }})
+  | <a href="/auth/clear/">log out</a>
+{% endblock %}
+
+{% block secondarynav %}
+  <a href="/post/" id="post">&#x270e; Post</a>
 {% endblock %}
 
 {% block body %}

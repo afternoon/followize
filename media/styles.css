@@ -32,7 +32,7 @@ dt { font-weight:bold; margin-top:0.7em; }
 
 .userinfo { font-size:x-small; font-weight:normal; color:#777; }
 .userinfo a { font-weight:bold; }
-.right-nav { position:absolute; right:0; top:0; }
+.secondarynav { position:absolute; right:0; top:0; }
 
 .message { background-color:#f9f9f9; padding:3px; text-align:center;
     margin-bottom:0.7em; color:#666; font-style:italic; }

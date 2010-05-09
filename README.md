@@ -13,7 +13,7 @@ requests data directly via JSONP.
 TODO
 ====
 
-  * Show current user.
+  * Show current user in timeline.
 
   * Posting, replying, sending DMs.
 
@@ -39,7 +39,7 @@ TODO
   * Remember open user state when updating, reloading, going forward, back.
       * `/home/#afternoon+martinkl+hailpixel`
 
-  * Add `target="_blank"` to "from Client"
+  * Add `target="_blank"` to "from Client" links
       * Watch out for special value: "web"
 
   * Zero-pad minutes.

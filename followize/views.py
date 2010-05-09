@@ -77,6 +77,7 @@ def auth_return(request):
     log.info(u"%s logged in, following %s" % (u["screen_name"],
             u["friends_count"]))
     request.session["screen_name"] = u["screen_name"]
+    request.session["friends_count"] = u["friends_count"]
 
     return HttpResponseRedirect(reverse("home"))
 
@@ -106,6 +107,8 @@ def home(request):
     oauth_token = OAuthToken.from_string(request.session["oauth_token_str"])
     ctx = {
         "oauth_token":          oauth_token.key,
-        "oauth_consumer_key":   settings.TWITTER_OAUTH_CONSUMER_KEY
+        "oauth_consumer_key":   settings.TWITTER_OAUTH_CONSUMER_KEY,
+        "screen_name":          request.session["screen_name"],
+        "friends_count":        request.session["friends_count"]
     }
     return render_to_response(u"followize/home.html", ctx)
