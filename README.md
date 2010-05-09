@@ -19,27 +19,29 @@ TODO
 
   * Expand "In reply to" conversations.
 
+  * Get retweets.
+
   * Redesign (with refresh button, big progress meter on first load, small meter
     on periodical reload).
-
-  * Get retweets.
 
   * Mentions.
 
   * DMs.
 
-  * Lists and searches (subscriptions stored at Twitter and cached in globalStorage).
-
-  * Expand short urls.
-
-  * Show images in dialog, perhaps with thumbnail inline a la FriendFeed.
-
-  * Cache data from Twitter in browser sessionStorage (or globalStorage?).
+  * Add `target="_blank"` to "from Client" links
+      * Watch out for special value: "web"
 
   * Remember open user state when updating, reloading, going forward, back.
       * `/home/#afternoon+martinkl+hailpixel`
 
-  * Add `target="_blank"` to "from Client" links
-      * Watch out for special value: "web"
+  * Lists and searches (subscriptions stored at Twitter and cached in globalStorage).
+
+  * Cache data from Twitter in browser sessionStorage (or globalStorage?).
 
   * Zero-pad minutes.
+
+  * User pop-up like Seesmic, show tweets.
+
+  * Expand short urls.
+
+  * Show images in dialog, perhaps with thumbnail inline a la FriendFeed.
