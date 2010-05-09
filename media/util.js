@@ -46,7 +46,7 @@ fw.util = {
 
     atReplies: function(text) {
         function replace_func(match, name, offset, original) {
-            if (offset !== 0 && original[offset - 1] !== " ") {
+            if (offset !== 0 && original[offset - 1].match(/\w/)) {
                 return match
             }
             else {
@@ -141,5 +141,28 @@ fw.util = {
             }
         }
         return null;
+    },
+
+    focusNoSelection: function(input) {
+        input.focus();
+        
+        // required otherwise Safari selects all text in the input
+        if ($.browser.safari) {
+            var end = input.value.length
+            input.setSelectionRange(end, end);
+        }
+    },
+
+    parseQs: function(qs) {
+        qs = qs.replace(/^\?/, "").replace(/\&$/, "");
+        r = {};
+        $.each(qs.split("&"), function() {
+            bits = this.split("=");
+            key = bits[0];
+            val = bits[1];
+            if (/^[0-9.]+$/.test(val)) val = parseFloat(val);
+            if (val !== "" && val !== null && val !== undefined) r[key] = val;
+        });
+        return r;
     }
 };

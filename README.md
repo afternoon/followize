@@ -38,6 +38,8 @@ TODO
 
   * Zero-pad minutes.
 
+  * Show error if trying to DM and can't.
+
   * User pop-up like Seesmic, show tweets.
 
   * Expand short urls.

@@ -68,6 +68,7 @@ fw.state = {
 fw.view = {
     // how frequently should tweets be displayed (every 5 mins)
     UPDATE_FREQ: 1000 * 60 * 5,
+    SLIDE_SPEED: 20,
 
     // template HTML
     CONTAINER_EXPR: "#content",
@@ -160,11 +161,6 @@ fw.view = {
         return false;
     },
 
-    // bind handlers for clicks to DOM nodes created by template expansion
-    bindEventHandlers: function() {
-        $("td.profile_image a, td.name a").click(fw.view.userOpenClick);
-    },
-
     // add the current user to the cache
     cacheCurrentUser: function(currentUser) {
         fw.util.log({currentUser: currentUser});
@@ -183,16 +179,110 @@ fw.view = {
 
         // bind event handlers for link clicks etc
         fw.util.log("Binding event handlers");
-        fw.view.bindEventHandlers()
+        fw.view.bindTimelineHandlers();
 
         // done
         fw.util.log("Finished updating");
     },
 
-    // update HTML regularly
+    // update view regularly
     showFollowingRepeatedly: function() {
         twitter.user(fw.state.currentUserScreenName, fw.view.cacheCurrentUser);
         twitter.following(fw.view.cacheAndShow);
         return setTimeout(fw.view.showFollowingRepeatedly, fw.view.UPDATE_FREQ);
+    },
+
+    // post a message to the Twitter
+    post: function(text, in_reply_to) {
+        var statusInput = $("#status").get(0);
+        $("body, html").animate({scrollTop: 0}, 100);
+        $("#post_entry").slideDown(fw.view.SLIDE_SPEED, function() {
+            statusInput.value = text || "";
+            $("#in_reply_to")[0].value = in_reply_to || "";
+            fw.util.focusNoSelection(statusInput);
+        });
+    },
+
+    // update remaining char count
+    updateCharsRemaining: function(e) {
+        var statusNodes = $("#status"),
+            val = statusNodes.val(),
+            n = 140 - val.length,
+            charsRemaining = $("#chars_remaining");
+
+        if (n < 0 || n === 140) c = "red";
+        else if (n < 20) c = "orange";
+        else c = "green";
+
+        charsRemaining.text(n);
+        charsRemaining.css("color", c);
+    },
+
+    postOpenClick: function(e) {
+        fw.view.post();
+        $("#post").unbind("click", fw.view.postOpenClick).bind("click", fw.view.postCloseClick);
+        return false;
+    },
+
+    postCloseClick: function(e) {
+        $("#post_entry").slideUp(fw.view.SLIDE_SPEED);
+        $("#post").unbind("click", fw.view.postCloseClick).bind("click", fw.view.postOpenClick);
+        return false;
+    },
+
+    showOriginal: function(anchor) {
+        return false;
+    },
+
+    replyOpenClick: function(e) {
+        fw.view.showOriginal(this);
+        return false;
+    },
+
+    // send a reply, retweet or DM
+    send: function(anchor) {
+        qs = fw.util.parseQs(anchor.search);
+        fw.view.post(unescape(qs["status"]), qs.in_reply_to);
+    },
+
+    sendClick: function(e) {
+        fw.view.send(this);
+        return false;
+    },
+
+    // bind handlers for clicks to DOM nodes created by template expansion
+    bindTimelineHandlers: function() {
+        $("td.profile_image a, td.name a").click(fw.view.userOpenClick);
+        $("td.reply a").click(fw.view.replyOpenClick);
+        $("td.send_reply a, td.send_retweet a, td.send_dm a").click(fw.view.sendClick);
+    },
+
+    refresh: function(e) {
+        refreshTimer = fw.view.showFollowingRepeatedly();
+    },
+
+    refreshClick: function(e) {
+        fw.view.refresh();
+        return false;
+    },
+
+    // bind handlers for persistent UI components
+    bindUIHandlers: function() {
+        $("#refresh").click(fw.view.refreshClick);
+        $("#post").click(fw.view.postOpenClick);
+        $("#close").click(fw.view.postCloseClick);
+    },
+
+    initStatusField: function() {
+        var statusNodes = $("#status");
+        statusNodes.keyup(fw.view.updateCharsRemaining);
+        fw.view.updateCharsRemaining();
+        fw.util.focusNoSelection(statusNodes.get(0));
+    },
+
+    init: function() {
+        fw.view.initStatusField();
+        fw.view.bindUIHandlers();
+        fw.view.refresh();
     }
 };

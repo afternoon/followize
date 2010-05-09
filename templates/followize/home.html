@@ -13,16 +13,15 @@
     var refreshTimer;
 
     // load some tweets!
-    $(document).ready(function () {
-        refreshTimer = fw.view.showFollowingRepeatedly();
-    });
+    $(document).ready(fw.view.init);
   </script>
 {% endblock %}
 
 {% block userinfo %}
-  | <a href="http://twitter.com/{{ screen_name }}" target="_blank">{{ screen_name }}</a>
-  (following {{ friends_count }})
-  | <a href="/auth/clear/">log out</a>
+  | <a id="current_user" href="http://twitter.com/{{ screen_name }}" target="_blank">{{ screen_name }}</a>
+    (following {{ friends_count }})
+  | <a id="refresh" href="#">refresh</a>
+  | <a id="logout" href="/auth/clear/">log out</a>
 {% endblock %}
 
 {% block secondarynav %}
@@ -30,6 +29,12 @@
 {% endblock %}
 
 {% block body %}
+  <div id="post_entry">
+    {% include "followize/post_entry.html" %}
+
+    <div id="close_wrap"><a id="close" href="#">Close</a></div>
+  </div>
+
   <div id="content">
     <div class="big_loading">Loading tweets...</div>
   </div>

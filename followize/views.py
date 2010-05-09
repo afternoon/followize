@@ -16,6 +16,7 @@ from django.utils.translation import ugettext as _
 from oauth import OAuthToken
 
 from decorators import auth_required
+from forms import PostForm
 from twitter import AuthenticationException, num_pages, TimeoutException, \
         Twitter, TwitterError
 
@@ -26,10 +27,7 @@ log = getLogger()
 def fail(request, message):
     if message[-1:] not in u".?!":
         message += u"."
-    ctx = {
-        "message":  message,
-        "user":     session_user(request.session)
-    }
+    ctx = {"message": message}
     return render_to_response(u"500.html", ctx)
 
 
@@ -96,7 +94,7 @@ def home_p(request):
     stats.sort_stats("time").print_stats(80)
     log.info("Profile data:\n%s", stream.getvalue())
     return HttpResponse(u"OK")
-    
+
 
 @auth_required
 def home(request):
@@ -112,3 +110,37 @@ def home(request):
         "friends_count":        request.session["friends_count"]
     }
     return render_to_response(u"followize/home.html", ctx)
+
+
+@auth_required
+def post(request):
+    """Post to Twitter"""
+    tw = Twitter(request.session["oauth_token_str"])
+    form = PostForm(request.REQUEST)
+
+    if request.method == u"POST" and not form.errors:
+        status = form.cleaned_data["status"]
+        in_reply_to = form.cleaned_data.get("in_reply_to", u"")
+
+        if u"@" not in status:
+            in_reply_to = None
+
+        try:
+            tw.update(status, in_reply_to)
+        except:
+            return fail(request, _(u"Couldn't post to Twitter, they are lame."
+                u" Refresh to try again."))
+
+        return HttpResponseRedirect(reverse("home"))
+
+    if request.method == u"GET":
+        status = request.GET.get("status", u"")
+
+        form["status"].field.required = False
+
+    if "in_reply_to" in form.errors:
+        return fail(request, _(u"%s is not a valid status to reply to." %
+                request.REQUEST["in_reply_to"]))
+
+    ctx = {"form": form}
+    return render_to_response(u"followize/post.html", ctx)

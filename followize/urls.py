@@ -1,6 +1,6 @@
 ﻿from django.conf.urls.defaults import *
 
-from followize.views import index, auth, auth_return, auth_clear, home
+from followize.views import index, auth, auth_return, auth_clear, home, post
 
 
 urlpatterns = patterns("",
@@ -11,4 +11,6 @@ urlpatterns = patterns("",
     url(r"^auth/clear/$", auth_clear, name="auth_clear"),
 
     url(r"^home/$", home, name="home"),
+
+    url(r"^post/$", post, name="post")
 )
