@@ -16,9 +16,9 @@ var twitter = {
     oauthTokenSecret: "",
     oauthConsumerKey: "",
     
-    init: function(params) {
-        twitter.oauthToken = params.oauthToken || "";
-        twitter.oauthConsumerKey = params.oauthConsumerKey || "";
+    init: function(oauthToken, oauthConsumerKey) {
+        twitter.oauthToken = oauthToken || "";
+        twitter.oauthConsumerKey = oauthConsumerKey || "";
     },
 
     // sign ajax request params
@@ -48,6 +48,19 @@ var twitter = {
         return $.jsonp(signedParams);
     },
 
+    // load user data from Twitter
+    user: function(screenName, handleUser) {
+        var userSuccess = function(data, textStatus) {
+                handleUser(data);
+            };
+
+        twitter.load({
+            url: twitter.API_BASE + "/users/show/" + screenName + ".json",
+            success: userSuccess,
+            error: fw.util.logAjaxError
+        });
+    },
+
     // recursively get all following 100 at a time, fire callback for each 100
     following: function(handlePage, finished, cursor) {
         var c = cursor || -1,
@@ -60,33 +73,27 @@ var twitter = {
                 else {
                     fin();
                 }
-            },
-            followingError = function(params, textStatus) {
-                log("Error: " + textStatus);
             };
 
         twitter.load({
             url: twitter.API_BASE + "/statuses/friends.json",
             data: {cursor: c},
             success: followingSuccess,
-            error: followingError
+            error: fw.util.logAjaxError
         });
     },
 
     // get timeline for a user
-    timeline: function(screenName, handleTimeline) {
+    userTimeline: function(screenName, handleTimeline) {
         var timelineSuccess = function(data, textStatus) {
                 return handleTimeline(data);
-            },
-            timelineError = function(params, textStatus) {
-                log("Error: " + textStatus);
             };
 
         twitter.load({
             url: twitter.API_BASE + "/statuses/user_timeline/" + screenName + ".json",
             data: {count: twitter.TIMELINE_LENGTH},
             success: timelineSuccess,
-            error: timelineError
+            error: fw.util.logAjaxError
         });
     },
 

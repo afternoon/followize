@@ -9,6 +9,12 @@ fw.state = {
     _users: {},
     _sorted: [],
 
+    currentUserScreenName: "",
+
+    init: function(currentUserScreenName) {
+        fw.state.currentUserScreenName = currentUserScreenName;
+    },
+
     // add latest page of users to the cache, overwriting any old users from an
     // existing user
     update: function(users) {
@@ -35,19 +41,27 @@ fw.state = {
         return fw.state._sorted;
     },
 
-    user: function(username) {
-        return fw.state._users["user" + username]
+    // get user
+    user: function(screenName) {
+        var k = "user" + screenName;
+        return fw.state._users[k];
     },
 
-    openUser: function(username, handleTimelineReady) {
-        var user = fw.state.user(username);
-        fw.util.log("Opening user " + username);
+    // open 
+    openUser: function(screenName, handleTimelineReady) {
+        var user = fw.state.user(screenName);
+        fw.util.log("Opening user " + screenName);
         user.open = true;
-        twitter.timeline(username, function(timeline) {
+        twitter.userTimeline(screenName, function(timeline) {
             user.timeline = timeline.reverse().slice(0, -1);
             fw.util.log({timeline: user});
             handleTimelineReady(user);
         });
+    },
+
+    closeUser: function(screenName) {
+        var user = fw.state.user(screenName);
+        user.open = false;
     }
 };
 
@@ -59,7 +73,7 @@ fw.view = {
     CONTAINER_EXPR: "#content",
     TABLE_EXPR: "#data",
     TABLE_HTML: '<table id="data" cellpadding="0" cellspacing="0"><tbody></tbody></table>',
-    USER_HTML: '<tr id="user_{{screen_name}}" class="user user_{{screen_name}}"><td class="profile_image"><a class="user_{{screen_name}}_anchor" href="http://twitter.com/{{screen_name}}" target="_blank" title="{{name}} &mdash; {{description}}" target="_blank"><img src="{{profile_image_url}}" width="14" height="14" alt=""></a></td><td class="name"><a class="user_{{screen_name}}_anchor" href="http://twitter.com/{{screen_name}}" target="_blank" title="{{name}} &mdash; {{description}}" target="_blank">{{screen_name}}</a></td>{{>status}}</tr>',
+    USER_HTML: '<tr id="user_{{screen_name}}" class="user user_{{screen_name}} {{me}}"><td class="profile_image"><a class="user_{{screen_name}}_anchor" href="http://twitter.com/{{screen_name}}" target="_blank" title="{{name}} &mdash; {{description}}" target="_blank"><img src="{{profile_image_url}}" width="14" height="14" alt=""></a></td><td class="name"><a class="user_{{screen_name}}_anchor" href="http://twitter.com/{{screen_name}}" target="_blank" title="{{name}} &mdash; {{description}}" target="_blank">{{screen_name}}</a></td>{{>status}}</tr>',
     TIMELINE_HTML: '<tr class="old user_{{screen_name}} old_user_{{screen_name}}"><td class="profile_image"></td><td class="name"></td>{{>status}}</tr>',
     STATUS_HTML: '<td class="status"><div class="tweet"><span class="text">{{{html}}}</span> <span class="created_at">{{created_at_rel}}</span> <span class="source">from {{{source}}}</span>{{>in_reply_to}}</div></td><td class="send_reply"><a href="http://twitter.com/?status=@{{screen_name}}%20&amp;in_reply_to={{id}}" target="_blank" title="Reply to {{screen_name}}">@</a></td><td class="send_retweet"><a href="http://twitter.com/?status=RT%20%40{{screen_name}}%3A%20{{text_escaped}}&amp;in_reply_to={{id}}" target="_blank" title="Retweet">&#x267a;</a></td><td class="send_dm"><a href="http://twitter.com/?status=d%20{{screen_name}}%20" target="_blank" title="Direct message {{screen_name}}">&#x2709;</a></td>',
     IN_REPLY_TO_HTML: ' <span class="reply">in reply to <a href="{{url}}" target="_blank" title="View {{screen_name}}\'s tweet">{{screen_name}}</a></span>',
@@ -103,11 +117,11 @@ fw.view = {
         $.map(user.timeline, function(status_) { fw.view.appendTimelineRow(user, status_, sibling); });
     },
 
-    // handle click on username or profile pic
+    // handle click on screen name or profile pic
     userOpenClick: function(e) {
-        var username = fw.util.usernameFromAnchor(this),
-            loadingId = "loading_" + username,
-            elem = $("tr.user_" + username),
+        var screenName = fw.util.screenNameFromAnchor(this),
+            loadingId = "loading_" + screenName,
+            elem = $("tr.user_" + screenName),
             handleTimelineReady = function(user) {
                 var anchorClass = ".user_" + user.screen_name + "_anchor";
 
@@ -125,19 +139,20 @@ fw.view = {
         elem.after($.mustache(fw.view.MESSAGE_HTML, {id: loadingId, message: "Loading timeline..."}));
 
         // call Twitter
-        fw.state.openUser(username, handleTimelineReady);
+        fw.state.openUser(screenName, handleTimelineReady);
 
         return false;
     },
     
     // handle close user timeline click - just remove the timeline rows
     userCloseClick: function(e) {
-        var username = fw.util.usernameFromAnchor(this),
-            anchorClass = ".user_" + username + "_anchor";
-        fw.util.log("Closing user " + username);
+        var screenName = fw.util.screenNameFromAnchor(this),
+            anchorClass = ".user_" + screenName + "_anchor";
+        fw.util.log("Closing user " + screenName);
 
         // close timeline rows for user
-        $(".old_user_" + username).remove();
+        fw.state.closeUser(screenName);
+        $(".old_user_" + screenName).remove();
 
         // bind userOpenClick to anchor
         $(anchorClass).unbind("click", fw.view.userCloseClick).bind("click", fw.view.userOpenClick);
@@ -148,6 +163,12 @@ fw.view = {
     // bind handlers for clicks to DOM nodes created by template expansion
     bindEventHandlers: function() {
         $("td.profile_image a, td.name a").click(fw.view.userOpenClick);
+    },
+
+    // add the current user to the cache
+    cacheCurrentUser: function(currentUser) {
+        fw.util.log({currentUser: currentUser});
+        fw.state.update([currentUser]);
     },
 
     // update cache and show it in one operation
@@ -170,6 +191,7 @@ fw.view = {
 
     // update HTML regularly
     showFollowingRepeatedly: function() {
+        twitter.user(fw.state.currentUserScreenName, fw.view.cacheCurrentUser);
         twitter.following(fw.view.cacheAndShow);
         return setTimeout(fw.view.showFollowingRepeatedly, fw.view.UPDATE_FREQ);
     }

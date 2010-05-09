@@ -19,6 +19,11 @@ fw.util = {
         if (typeof console !== "undefined") { console.log(s); }
     },
 
+    // generic error logger ajax callback
+    logAjaxError: function(params, textStatus) {
+        fw.util.log("Error: " + textStatus);
+    },
+
     makeLink: function(text) {
         if (text.indexOf("http://") === 0 || text.indexOf("https://") === 0) {
             return '<a href="' + text + '" target="_blank">' + text + "</a>";
@@ -103,6 +108,7 @@ fw.util = {
         }
     },
 
+    // prepare user record for being inserted into template
     fixupUser: function(user) {
         if (user && user["status"]) {
             user["status"].html = fw.util.addLinks(user["status"].text);
@@ -115,10 +121,14 @@ fw.util = {
                     screen_name: user["status"].in_reply_to_screen_name
                 };
             }
+            if (user.screen_name === fw.state.currentUserScreenName) {
+                user.me = "me";
+            }
         }
         return user;
     },
 
+    // derive the screen name from an anchor element
     screenNameFromAnchor: function(anchor) {
         var tr = $(anchor).parent().parent(),
             classes = tr.attr("class").split(" ");

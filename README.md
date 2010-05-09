@@ -11,9 +11,7 @@ The back-end component creates an OAuth session with Twitter. The client then
 requests data directly via JSONP.
 
 TODO
-====
-
-  * Show current user in timeline.
+----
 
   * Posting, replying, sending DMs.
 

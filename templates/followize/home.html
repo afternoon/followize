@@ -5,11 +5,9 @@
 
 {% block extrahead %}
   <script type="text/javascript">
-    // set up twitter params (static vars)
-    twitter.init({
-      oauthToken: "{{ oauth_token }}",
-      oauthConsumerKey: "{{ oauth_consumer_key }}"
-    });
+    // set up
+    twitter.init("{{ oauth_token }}", "{{ oauth_consumer_key }}");
+    fw.state.init("{{ screen_name }}");
 
     // keep a handle on automatic refresh
     var refreshTimer;
