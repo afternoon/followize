@@ -89,7 +89,7 @@ a.auth:hover { text-decoration:underline; }
 
 /* loading */
 
-.loading { text-align:center; padding:49px 0 20px 0;
+.big_loading { color:#777; text-align:center; padding:49px 0 20px 0;
     background:transparent url(loading.gif) no-repeat center 20px; }
 
 /* home */
@@ -142,7 +142,7 @@ a.auth:hover { text-decoration:underline; }
 
 /* inline timeline */
 
-.old .status, .old .send_reply, .old .send_dm { border-top:1px solid #f6f6f6; }
+.old .status, .old .send_reply, .old .send_retweet, .old .send_dm { border-top:1px solid #f6f6f6; }
 
 /* post */
 

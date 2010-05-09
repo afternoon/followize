@@ -17,6 +17,8 @@ TODO
 
   * Posting.
 
+  * Show current user.
+
   * Open users remembered when display updates.
       * Timelines copied to new state.
       * Timeline object refreshed if new state indicates newer tweet.

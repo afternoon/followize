@@ -44,7 +44,8 @@ fw.state = {
         fw.util.log("Opening user " + username);
         user.open = true;
         twitter.timeline(username, function(timeline) {
-            user.timeline = timeline;
+            user.timeline = timeline.reverse().slice(0, -1);
+            fw.util.log({timeline: user});
             handleTimelineReady(user);
         });
     }
@@ -62,7 +63,7 @@ fw.view = {
     TIMELINE_HTML: '<tr class="old user_{{screen_name}} old_user_{{screen_name}}"><td class="profile_image"></td><td class="name"></td>{{>status}}</tr>',
     STATUS_HTML: '<td class="status"><div class="tweet"><span class="text">{{{html}}}</span> <span class="created_at">{{created_at_rel}}</span> <span class="source">from {{{source}}}</span>{{>in_reply_to}}</div></td><td class="send_reply"><a href="http://twitter.com/?status=@{{screen_name}}%20&amp;in_reply_to={{id}}" title="Reply to {{screen_name}}">@</a></td><td class="send_retweet"><a href="http://twitter.com/?status=RT%20%40{{screen_name}}%20{{text}}&amp;in_reply_to={{id}}" title="Retweet">&#x267a;</a></td><td class="send_dm"><a href="http://twitter.com/?status=d%20{{screen_name}}%20" title="Direct message {{screen_name}}">&#x2709;</a></td>',
     IN_REPLY_TO_HTML: ' <span class="reply">in reply to <a href="{{url}}" title="View {{screen_name}}\'s tweet">{{screen_name}}</a></span>',
-    MESSAGE_HTML: '<tr id="tweet_{{id}}" class="old"><td class="profile_image"></td><td class="name"></td><td class="status">{{message}}</td><td class="send_reply"></td><td class="send_retweet"></td><td class="send_dm"></td></tr>',
+    MESSAGE_HTML: '<tr id="{{id}}" class="old"><td class="profile_image"></td><td class="name"></td><td class="status loading">{{message}}</td><td class="send_reply"></td><td class="send_retweet"></td><td class="send_dm"></td></tr>',
 
     // append rendered HTML for a user to provided container node
     appendUser: function(user, container) {
@@ -94,7 +95,6 @@ fw.view = {
                 "in_reply_to": fw.view.IN_REPLY_TO_HTML
             };
         userCopy["status"] = status_;
-        fw.util.log({timelineRow: userCopy});
         sibling.after($.mustache(fw.view.TIMELINE_HTML, fw.util.fixupUser(userCopy), templates));
     },
 
