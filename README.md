@@ -13,7 +13,8 @@ requests data directly via JSONP.
 TODO
 ----
 
-  * Ajax posting.
+  * Single-key keyboard shortcuts for post and refresh.
+      * $("html").keyup(function(e) { alert(e.which); });
 
   * Expand "In reply to" conversations.
 
@@ -22,15 +23,17 @@ TODO
   * Add `target="_blank"` to "from Client" links
       * Watch out for special value: "web"
 
+  * Remember open user state when updating, reloading, going forward, back.
+      * `/home/#afternoon+martinkl+hailpixel`
+
   * Redesign (with refresh button, big progress meter on first load, small meter
     on periodical reload).
+
+  * Ajax posting.
 
   * Mentions.
 
   * DMs.
-
-  * Remember open user state when updating, reloading, going forward, back.
-      * `/home/#afternoon+martinkl+hailpixel`
 
   * Lists and searches (subscriptions stored at Twitter and cached in globalStorage).
 
