@@ -13,8 +13,7 @@ requests data directly via JSONP.
 TODO
 ----
 
-  * Single-key keyboard shortcuts for post and refresh.
-      * $("html").keyup(function(e) { alert(e.which); });
+  * Refresh throbber.
 
   * Expand "In reply to" conversations.
 

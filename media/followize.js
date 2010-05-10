@@ -164,7 +164,6 @@ fw.view = {
 
     // add the current user to the cache
     cacheCurrentUser: function(currentUser) {
-        fw.util.log({currentUser: currentUser});
         fw.state.update([currentUser]);
     },
 
@@ -197,6 +196,7 @@ fw.view = {
     post: function(text, in_reply_to) {
         var statusInput = $("#status").get(0);
         $("body, html").animate({scrollTop: 0}, 100);
+        $("#post").unbind("click", fw.view.postOpenClick).bind("click", fw.view.postCloseClick);
         $("#post_entry").slideDown(fw.view.SLIDE_SPEED, function() {
             statusInput.value = text || "";
             $("#in_reply_to")[0].value = in_reply_to || "";
@@ -262,21 +262,50 @@ fw.view = {
 
     postOpenClick: function(e) {
         fw.view.post();
-        $("#post").unbind("click", fw.view.postOpenClick).bind("click", fw.view.postCloseClick);
         return false;
+    },
+
+    postClose: function(e) {
+        $("#post_entry").slideUp(fw.view.SLIDE_SPEED);
+        $("#post").unbind("click", fw.view.postCloseClick).bind("click", fw.view.postOpenClick);
+        $("#status").blur();
     },
 
     postCloseClick: function(e) {
-        $("#post_entry").slideUp(fw.view.SLIDE_SPEED);
-        $("#post").unbind("click", fw.view.postCloseClick).bind("click", fw.view.postOpenClick);
+        fw.view.postClose();
         return false;
     },
 
-    // bind handlers for persistent UI components
-    bindUIHandlers: function() {
-        $("#refresh").click(fw.view.refreshClick);
-        $("#post").click(fw.view.postOpenClick);
-        $("#close").click(fw.view.postCloseClick);
+    keydown: function(e) {
+        switch (e.which) {
+            case 73: // i, Vim FTW!
+                fw.view.post();
+                return true;
+
+            case 80: // p
+                fw.view.post();
+                return true;
+
+            case 82: // r
+                fw.view.refresh();
+                return true;
+        }
+    },
+
+    statusKeydown: function(e) {
+        switch (e.which) {
+            case 27: // esc
+                fw.view.postClose();
+                return false;
+        }
+    },
+
+    statusFocus: function(e) {
+        $("html").unbind("keydown", fw.view.keydown).keydown(fw.view.statusKeydown);
+    },
+
+    statusBlur: function(e) {
+        $("html").unbind("keydown", fw.view.statusKeydown).keydown(fw.view.keydown);
     },
 
     initStatusField: function() {
@@ -284,6 +313,15 @@ fw.view = {
         statusNodes.keyup(fw.view.updateCharsRemaining);
         fw.view.updateCharsRemaining();
         fw.util.focusNoSelection(statusNodes.get(0));
+    },
+
+    // bind handlers for persistent UI components
+    bindUIHandlers: function() {
+        $("html").keydown(fw.view.keydown);
+        $("#status").focus(fw.view.statusFocus).blur(fw.view.statusBlur);
+        $("#refresh").click(fw.view.refreshClick);
+        $("#post").click(fw.view.postOpenClick);
+        $("#close").click(fw.view.postCloseClick);
     },
 
     init: function() {

@@ -18,21 +18,21 @@
 {% endblock %}
 
 {% block userinfo %}
-  | <a id="current_user" href="http://twitter.com/{{ screen_name }}" target="_blank">{{ screen_name }}</a>
+  | <a id="current_user" href="http://twitter.com/{{ screen_name }}" target="_blank" title="Open your profile on Twitter">{{ screen_name }}</a>
     (following {{ friends_count }})
-  | <a id="refresh" href="#" accesskey="r">refresh</a>
-  | <a id="logout" href="/auth/clear/">log out</a>
+  | <a id="refresh" href="#" title="Refresh tweets (keyboard shortcut: R)">refresh</a>
+  | <a id="logout" href="/auth/clear/" title="Log out of Followize">log out</a>
 {% endblock %}
 
 {% block secondarynav %}
-  <a href="/post/" id="post" accesskey="p">&#x270e; Post</a>
+  <a href="/post/" id="post" title="Post a message to Twitter (keyboard shortcut: P)">&#x270e; Post</a>
 {% endblock %}
 
 {% block body %}
   <div id="post_entry">
     {% include "followize/post_entry.html" %}
 
-    <div id="close_wrap"><a id="close" href="#">Close</a></div>
+    <div id="close_wrap"><a id="close" href="#" title="Hide post form (keyboard shortcut: Esc)">Close</a></div>
   </div>
 
   <div id="content">
