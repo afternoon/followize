@@ -38,8 +38,6 @@ TODO
 
   * Cache data from Twitter in browser sessionStorage (or globalStorage?).
 
-  * Zero-pad minutes.
-
   * Show error if trying to DM and can't.
 
   * User pop-up like Seesmic, show tweets.
