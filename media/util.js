@@ -74,22 +74,42 @@ fw.util = {
         return fw.util.urlize(fw.util.atReplies(fw.util.stocktwits(fw.util.hashtags(fw.util.escapeLonelyAmps(text)))));
     },
 
+    zeropad: function(i, n) {
+        var i_ = i + "";
+        while (i_.length < n) { i_ = "0" + i_; }
+        return i_;
+    },
+
     timediff: function (t) {
         var d = new Date(t),
-            delta = (new Date() - d) / 1000,
-            days = Math.floor(delta / 86400),
-            hours = Math.floor((delta % 86400) / 3600),
-            mins = Math.floor((delta % 3600) / 60),
-            secs = Math.floor(delta % 60),
-            amount = 0,
-            unit_str = "";
+            now = new Date(),
+            delta = (now - d) / 1000,
+            days = Math.floor(delta / 86400);
+            hours = Math.floor((delta % 86400) / 3600);
         
-        if (days >= 1) {
-            dateInTwitTz = new Date(d.getTime() - d.getTimezoneOffset() + fw.util.TIMEZONE_OFFSET);
-            return [fw.util.MONTH_SHORT_NAMES[d.getMonth()], " ", d.getDate(), ", ",
-                   d.getHours(), ":", d.getMinutes()].join("");
+        if (days > 0) {
+            var dateInTwitTz = new Date(d.getTime() - d.getTimezoneOffset() + fw.util.TIMEZONE_OFFSET),
+                result = [
+                    fw.util.MONTH_SHORT_NAMES[d.getMonth()],
+                    " ",
+                    d.getDate(),
+                    ", ",
+                    d.getHours(),
+                    ":",
+                    fw.util.zeropad(d.getMinutes(), 2)
+                ];
+
+            if (d.getYear() < now.getYear()) {
+                result.splice(3, 0, " ", d.getYear() + 1900);
+            }
+            return result.join("");
         }
         else {
+            var mins = Math.floor((delta % 3600) / 60),
+                secs = Math.floor(delta % 60),
+                amount = 0,
+                unit_str = "";
+
             if (hours > 0) {
                 amount = hours;
                 unit_str = "hour";
