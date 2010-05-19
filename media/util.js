@@ -130,7 +130,16 @@ fw.util = {
 
     // prepare user record for being inserted into template
     fixupUser: function(user) {
-        if (user && user["status"]) {
+        if (user) {
+            if (!user["status"]) {
+                user["status"] = {
+                    id: null,
+                    text: " ",
+                    created_at: "Thu Jan 01 00:00:00 +0000 1970",
+                    in_reply_to_status_id: null,
+                    source: " "
+                };
+            }
             user["status"].html = fw.util.addLinks(user["status"].text);
             user["status"].text_escaped = escape(user["status"].text);
             user["status"].created_at_rel = fw.util.timediff(user["status"].created_at);
